@@ -46,6 +46,9 @@ class MainLayoutState extends State<MainLayout> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF6B4EFF),
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
@@ -60,7 +63,7 @@ class MainLayoutState extends State<MainLayout> {
           BottomNavigationBarItem(
             icon: Icon(Icons.menu_book_outlined),
             activeIcon: Icon(Icons.menu_book),
-            label: 'Tests Library',
+            label: 'Tests',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.view_in_ar_outlined),

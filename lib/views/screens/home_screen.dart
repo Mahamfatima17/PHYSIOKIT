@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
 import '../../providers/learning_provider.dart';
 import '../widgets/interactive_body_map.dart';

@@ -7,7 +7,6 @@ import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -16,80 +15,82 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToNext();
+    Future.delayed(const Duration(seconds: 3), _navigateToNext);
   }
 
-  void _navigateToNext() async {
-    // Wait for 3 seconds of splash animation
-    await Future.delayed(const Duration(seconds: 3));
-    
+  void _navigateToNext() {
     if (!mounted) return;
-    
-    // Check onboarding status
-    final bool onboarded = StorageHelper.settingsBox.get('onboarded', defaultValue: false);
-    
+    final bool onboarded =
+        StorageHelper.settingsBox.get('onboarded', defaultValue: false);
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => onboarded ? const MainLayout() : const OnboardingScreen(),
+        builder: (context) =>
+            onboarded ? const MainLayout() : const OnboardingScreen(),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: theme.brightness == Brightness.light
-                ? [AppColors.primaryLight, Colors.white]
-                : [AppColors.darkBg, AppColors.darkSurface],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Animated Pulse Logo
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryPurple.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.medical_services_outlined,
-                    size: 50,
-                    color: AppColors.primaryPurple,
-                  ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                   .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 1200.ms, curve: Curves.easeInOut)
-                   .then()
-                   .tint(color: AppColors.primaryPurple.withOpacity(0.8)),
+      backgroundColor: AppColors.primaryPurple,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 110,
+              height: 110,
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(38),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withAlpha(77), width: 2),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.medical_services_rounded,
+                  size: 55,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 24),
-              // App Name Text
-              Text(
-                'PhysioKit',
-                style: theme.textTheme.displayLarge?.copyWith(
-                  color: AppColors.primaryPurple,
-                  letterSpacing: 1.5,
-                ),
-              ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.2, end: 0.0),
-              const SizedBox(height: 8),
-              // Subtitle
-              Text(
-                'Interactive Physiotherapy reference',
-                style: theme.textTheme.bodyMedium,
-              ).animate().fadeIn(delay: 400.ms, duration: 800.ms),
-            ],
-          ),
+            )
+                .animate()
+                .scale(
+                  begin: const Offset(0.5, 0.5),
+                  end: const Offset(1.0, 1.0),
+                  duration: 700.ms,
+                  curve: Curves.elasticOut,
+                )
+                .fadeIn(duration: 500.ms),
+            const SizedBox(height: 28),
+            const Text(
+              'PhysioKit',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2.0,
+              ),
+            )
+                .animate()
+                .fadeIn(delay: 400.ms, duration: 600.ms)
+                .slideY(begin: 0.3, end: 0.0, delay: 400.ms),
+            const SizedBox(height: 10),
+            const Text(
+              'Clinical Pocket Reference',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ).animate().fadeIn(delay: 700.ms, duration: 600.ms),
+            const SizedBox(height: 60),
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(Colors.white.withAlpha(180)),
+              ),
+            ).animate().fadeIn(delay: 900.ms),
+          ],
         ),
       ),
     );

@@ -8,10 +8,7 @@ import 'views/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize local Hive boxes
   await StorageHelper.init();
-
   runApp(
     MultiProvider(
       providers: [
@@ -29,7 +26,6 @@ class PhysioKitApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-
     return MaterialApp(
       title: 'PhysioKit',
       debugShowCheckedModeBanner: false,

@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="physiokit"
+        android:label="PhysioKit"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Force Vulkan backend on API 37+ emulators for correct rendering -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableVulkanImpeller"
+            android:value="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

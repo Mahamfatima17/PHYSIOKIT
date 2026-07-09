@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/database/db_helper.dart';
-import '../../core/storage/storage_helper.dart';
+import '../core/database/db_helper.dart';
+import '../core/storage/storage_helper.dart';
 import '../models/special_test.dart';
 
 class LearningProvider extends ChangeNotifier {

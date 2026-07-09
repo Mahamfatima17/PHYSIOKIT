@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/storage/storage_helper.dart';
+import '../core/storage/storage_helper.dart';
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;
