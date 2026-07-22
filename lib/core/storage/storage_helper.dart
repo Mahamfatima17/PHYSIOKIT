@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../database/db_helper.dart';
 
 class StorageHelper {
   static const String settingsBoxName = 'settings';
@@ -6,13 +8,48 @@ class StorageHelper {
   static const String profileBoxName = 'profile';
 
   static Future<void> init() async {
-    await Hive.initFlutter();
-    
-    // Open boxes
-    await Hive.openBox(settingsBoxName);
-    await Hive.openBox(bookmarksBoxName);
-    await Hive.openBox(profileBoxName);
+    try {
+      await Hive.initFlutter();
+      await Hive.openBox(settingsBoxName);
+      await Hive.openBox(bookmarksBoxName);
+      await Hive.openBox(profileBoxName);
+    } catch (e) {
+      debugPrint("Hive initialization failure, resetting storage boxes: $e");
+      try {
+        await Hive.deleteBoxFromDisk(settingsBoxName);
+        await Hive.deleteBoxFromDisk(bookmarksBoxName);
+        await Hive.deleteBoxFromDisk(profileBoxName);
+        
+        await Hive.openBox(settingsBoxName);
+        await Hive.openBox(bookmarksBoxName);
+        await Hive.openBox(profileBoxName);
+      } catch (e2) {
+        debugPrint("Hive critical recovery failed: $e2");
+      }
+    }
   }
+
+  // Clear all caches in the app to optimize performance and reset
+  static Future<void> clearAllCache() async {
+    try {
+      // 1. Clear Hive data stores
+      await settingsBox.clear();
+      await bookmarksBox.clear();
+      await profileBox.clear();
+
+      // 2. Clear SQLite Viewed History
+      await DbHelper.instance.clearHistory();
+
+      // 3. Clear Flutter Engine Image Cache to free memory instantly
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+      
+      debugPrint("Cleared all cached app data successfully!");
+    } catch (e) {
+      debugPrint("Error performing cache sweep: $e");
+    }
+  }
+
 
   // settings helpers
   static Box get settingsBox => Hive.box(settingsBoxName);
@@ -56,6 +93,11 @@ class StorageHelper {
 
   static String get userUniversity => profileBox.get('university', defaultValue: 'UET Taxila - DPT Program');
   static set userUniversity(String value) => profileBox.put('university', value);
+
+  static Future<void> saveProfile(String name, String university) async {
+    await profileBox.put('name', name);
+    await profileBox.put('university', university);
+  }
 
   static List<String> getCompletedRegions() {
     final list = profileBox.get('completedRegions', defaultValue: <String>[]);

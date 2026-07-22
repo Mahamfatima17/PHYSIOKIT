@@ -44,6 +44,7 @@ class CategoriesScreen extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: Card(
+                  elevation: 0,
                   child: InkWell(
                     onTap: () {
                       Navigator.of(context).push(
@@ -78,12 +79,18 @@ class CategoriesScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   cat.displayName,
-                                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '${cat.testsCount} Tests | ${progress.toStringAsFixed(0)}% Completed',
-                                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 ClipRRect(
@@ -92,7 +99,7 @@ class CategoriesScreen extends StatelessWidget {
                                     value: progress / 100.0,
                                     minHeight: 4,
                                     backgroundColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryPurple),
+                                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryPink),
                                   ),
                                 ),
                               ],
@@ -102,7 +109,7 @@ class CategoriesScreen extends StatelessWidget {
                           const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
-                            color: AppColors.primaryPurple,
+                            color: AppColors.primaryPink,
                           ),
                         ],
                       ),

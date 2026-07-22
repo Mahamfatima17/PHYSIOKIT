@@ -3,10 +3,13 @@
         android:label="PhysioKit"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Force Vulkan backend on API 37+ emulators for correct rendering -->
+        <!-- Disable Impeller backend to prevent graphics driver crashes on emulator -->
         <meta-data
             android:name="io.flutter.embedding.android.EnableVulkanImpeller"
-            android:value="true" />
+            android:value="false" />
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

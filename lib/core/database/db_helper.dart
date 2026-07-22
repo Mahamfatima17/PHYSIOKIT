@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'initial_data.dart';
@@ -10,7 +11,20 @@ class DbHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('physiokit.db');
+    try {
+      _database = await _initDB('physiokit.db');
+    } catch (e) {
+      debugPrint("SQLite initialization error, recreating database: $e");
+      try {
+        final dbPath = await getDatabasesPath();
+        final path = join(dbPath, 'physiokit.db');
+        await deleteDatabase(path);
+        _database = await _initDB('physiokit.db');
+      } catch (e2) {
+        debugPrint("SQLite critical recovery failed: $e2");
+        rethrow;
+      }
+    }
     return _database!;
   }
 
@@ -24,6 +38,7 @@ class DbHelper {
       onCreate: _createDB,
     );
   }
+
 
   Future<void> _createDB(Database db, int version) async {
     const textType = 'TEXT NOT NULL';
@@ -61,7 +76,8 @@ class DbHelper {
       )
     ''');
 
-    // Seed the database with the pre-parsed tests
+    // Seed the database with the pre-parsed tests using batch for high performance
+    final batch = db.batch();
     for (var test in initialTestsData) {
       // Basic extraction of positions from procedure if available (optional enhancement)
       String patientPos = '';
@@ -86,7 +102,7 @@ class DbHelper {
         therapistPos = 'Standing beside patient';
       }
 
-      await db.insert('tests', {
+      batch.insert('tests', {
         'name': test['name'] ?? '',
         'category': test['category'] ?? '',
         'region': test['region'] ?? '',
@@ -104,82 +120,120 @@ class DbHelper {
         'reference': test['reference'] ?? 'The Physiotherapist\'s Pocket Book',
       });
     }
+    await batch.commit(noResult: true);
   }
 
   // Fetch all tests
   Future<List<Map<String, dynamic>>> fetchAllTests() async {
-    final db = await instance.database;
-    return await db.query('tests', orderBy: 'name ASC');
+    try {
+      final db = await instance.database;
+      return await db.query('tests', orderBy: 'name ASC');
+    } catch (e) {
+      debugPrint("SQLite fetchAllTests error: $e");
+      return [];
+    }
   }
 
   // Fetch tests by region
   Future<List<Map<String, dynamic>>> fetchTestsByRegion(String region) async {
-    final db = await instance.database;
-    return await db.query(
-      'tests',
-      where: 'region = ?',
-      whereArgs: [region],
-      orderBy: 'name ASC',
-    );
+    try {
+      final db = await instance.database;
+      return await db.query(
+        'tests',
+        where: 'region = ?',
+        whereArgs: [region],
+        orderBy: 'name ASC',
+      );
+    } catch (e) {
+      debugPrint("SQLite fetchTestsByRegion error: $e");
+      return [];
+    }
   }
 
   // Fetch tests by category
   Future<List<Map<String, dynamic>>> fetchTestsByCategory(String category) async {
-    final db = await instance.database;
-    return await db.query(
-      'tests',
-      where: 'category = ?',
-      whereArgs: [category],
-      orderBy: 'name ASC',
-    );
+    try {
+      final db = await instance.database;
+      return await db.query(
+        'tests',
+        where: 'category = ?',
+        whereArgs: [category],
+        orderBy: 'name ASC',
+      );
+    } catch (e) {
+      debugPrint("SQLite fetchTestsByCategory error: $e");
+      return [];
+    }
   }
 
   // Search tests
   Future<List<Map<String, dynamic>>> searchTests(String query) async {
-    final db = await instance.database;
-    return await db.rawQuery('''
-      SELECT * FROM tests 
-      WHERE name LIKE ? 
-         OR purpose LIKE ? 
-         OR region LIKE ? 
-         OR category LIKE ?
-      ORDER BY name ASC
-    ''', List.filled(4, '%$query%'));
+    try {
+      final db = await instance.database;
+      return await db.rawQuery('''
+        SELECT * FROM tests 
+        WHERE name LIKE ? 
+           OR purpose LIKE ? 
+           OR region LIKE ? 
+           OR category LIKE ?
+        ORDER BY name ASC
+      ''', List.filled(4, '%$query%'));
+    } catch (e) {
+      debugPrint("SQLite searchTests error: $e");
+      return [];
+    }
   }
 
   // History operations
   Future<void> addHistory(int testId) async {
-    final db = await instance.database;
-    final timestamp = DateTime.now().toIso8601String();
-    
-    // Check and remove duplicates to keep only the latest entry
-    await db.delete('history', where: 'test_id = ?', whereArgs: [testId]);
-    
-    await db.insert('history', {
-      'test_id': testId,
-      'viewed_at': timestamp,
-    });
+    try {
+      final db = await instance.database;
+      final timestamp = DateTime.now().toIso8601String();
+      
+      // Check and remove duplicates to keep only the latest entry
+      await db.delete('history', where: 'test_id = ?', whereArgs: [testId]);
+      
+      await db.insert('history', {
+        'test_id': testId,
+        'viewed_at': timestamp,
+      });
+    } catch (e) {
+      debugPrint("SQLite addHistory error: $e");
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchHistory() async {
-    final db = await instance.database;
-    return await db.rawQuery('''
-      SELECT h.viewed_at, t.* 
-      FROM history h
-      JOIN tests t ON h.test_id = t.id
-      ORDER BY h.viewed_at DESC
-    ''');
+    try {
+      final db = await instance.database;
+      return await db.rawQuery('''
+        SELECT h.viewed_at, t.* 
+        FROM history h
+        JOIN tests t ON h.test_id = t.id
+        ORDER BY h.viewed_at DESC
+      ''');
+    } catch (e) {
+      debugPrint("SQLite fetchHistory error: $e");
+      return [];
+    }
   }
 
   Future<void> clearHistory() async {
-    final db = await instance.database;
-    await db.delete('history');
+    try {
+      final db = await instance.database;
+      await db.delete('history');
+    } catch (e) {
+      debugPrint("SQLite clearHistory error: $e");
+    }
   }
 
   Future<void> close() async {
-    final db = _database;
-    if (db != null) {
-      await db.close();
+    try {
+      final db = _database;
+      if (db != null) {
+        await db.close();
+      }
+    } catch (e) {
+      debugPrint("SQLite close error: $e");
     }
   }
 }

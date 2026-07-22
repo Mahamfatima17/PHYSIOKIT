@@ -55,12 +55,12 @@ class _SearchScreenState extends State<SearchScreen> {
                 fillColor: isDark ? AppColors.darkSurface : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.primaryPurple, width: 1.5),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.primaryPink, width: 1.5),
                 ),
               ),
               onChanged: (val) {
@@ -88,10 +88,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           });
                         }
                       },
-                      selectedColor: AppColors.primaryPurple.withOpacity(0.15),
+                      selectedColor: AppColors.primaryPink.withOpacity(0.15),
                       labelStyle: TextStyle(
                         color: isSelected
-                            ? AppColors.primaryPurple
+                            ? AppColors.primaryPink
                             : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
@@ -99,7 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         borderRadius: BorderRadius.circular(20),
                         side: BorderSide(
                           color: isSelected
-                              ? AppColors.primaryPurple
+                              ? AppColors.primaryPink
                               : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                         ),
                       ),
@@ -148,6 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Card(
+                          elevation: 0,
                           child: InkWell(
                             onTap: () {
                               Navigator.of(context).push(
@@ -167,12 +168,18 @@ class _SearchScreenState extends State<SearchScreen> {
                                       children: [
                                         Text(
                                           test.name,
-                                          style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
+                                          style: theme.textTheme.titleLarge?.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           test.purpose,
-                                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                            fontSize: 13,
+                                            height: 1.35,
+                                          ),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -181,7 +188,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                           children: [
                                             _buildBadge(test.category, AppColors.primaryPurple),
                                             const SizedBox(width: 8),
-                                            _buildBadge(test.region, AppColors.info),
+                                            _buildBadge(test.region, AppColors.primaryPink),
                                           ],
                                         ),
                                       ],
@@ -191,7 +198,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   const Icon(
                                     Icons.arrow_forward_ios,
                                     size: 16,
-                                    color: AppColors.primaryPurple,
+                                    color: AppColors.primaryPink,
                                   ),
                                 ],
                               ),

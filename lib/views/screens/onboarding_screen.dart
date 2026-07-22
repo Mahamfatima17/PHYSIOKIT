@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/storage/storage_helper.dart';
 import '../../core/theme/colors.dart';
 import 'main_layout.dart';
+import '../widgets/skeleton_logo.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -54,13 +55,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Align(
               alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _onFinish,
-                child: Text(
-                  'Skip',
-                  style: TextStyle(
-                    color: AppColors.primaryPurple,
-                    fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: _onFinish,
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      color: AppColors.primaryPink,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
@@ -81,20 +86,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Circle Icon Container
+                        // Circle Icon Container styled beautifully in Pink/Purple
                         Container(
                           width: 180,
                           height: 180,
                           decoration: BoxDecoration(
                             color: isDark ? page.color.withOpacity(0.08) : page.color,
                             shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primaryPink.withOpacity(0.2),
+                              width: 2.0,
+                            ),
                           ),
                           child: Center(
-                            child: Icon(
-                              page.icon,
-                              size: 80,
-                              color: AppColors.primaryPurple,
-                            ),
+                            child: index == 0
+                                ? const SkeletonLogo(size: 110)
+                                : Icon(
+                                    page.icon,
+                                    size: 80,
+                                    color: AppColors.primaryPink,
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 48),
@@ -103,6 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           page.title,
                           style: theme.textTheme.displayLarge?.copyWith(
                             fontSize: 28,
+                            fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -112,6 +124,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           page.description,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            height: 1.4,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -121,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-            // Bottom bar with indicators and buttons
+            // Bottom bar with indicators and action button
             Padding(
               padding: const EdgeInsets.all(32.0),
               child: Row(
@@ -138,14 +151,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         width: _currentPage == index ? 24.0 : 8.0,
                         decoration: BoxDecoration(
                           color: _currentPage == index
-                              ? AppColors.primaryPurple
+                              ? AppColors.primaryPink
                               : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
                     ),
                   ),
-                  // Button
+                  // Next / Get Started Button
                   FloatingActionButton.extended(
                     onPressed: () {
                       if (_currentPage < _pages.length - 1) {

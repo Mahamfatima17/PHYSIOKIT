@@ -32,17 +32,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _saveProfile() async {
-    if (_nameController.text.isNotEmpty) {
-      StorageHelper.userName = _nameController.text;
+    final String name = _nameController.text.trim();
+    final String university = _uniController.text.trim();
+
+    if (name.isEmpty || university.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Name and University fields cannot be empty!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
     }
-    if (_uniController.text.isNotEmpty) {
-      StorageHelper.userUniversity = _uniController.text;
+
+    await StorageHelper.saveProfile(name, university);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile details updated successfully!'),
+          backgroundColor: AppColors.primaryPink,
+        ),
+      );
+      Navigator.of(context).pop();
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile details updated successfully!'),
-        backgroundColor: AppColors.primaryPurple,
-      ),
+  }
+
+  void _confirmClearCache(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Clear App Cache & Reset?', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text(
+            'This action will clear all local settings, bookmarks, clinical history logs, and free up cache memory. The app will revert to its default state. This cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.w600)),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                
+                await StorageHelper.clearAllCache();
+                
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('App cache and user preferences cleared successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  
+                  setState(() {
+                    _textSize = StorageHelper.textSize;
+                    _language = StorageHelper.language;
+                    _nameController.text = StorageHelper.userName;
+                    _uniController.text = StorageHelper.userUniversity;
+                  });
+                }
+              },
+              child: const Text('Clear All', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -60,42 +116,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(20.0),
         children: [
           // Section 1: Profile Customization
-          Text('Edit Profile', style: theme.textTheme.headlineMedium),
+          Text(
+            'Edit Profile',
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: Column(
               children: [
                 TextField(
                   controller: _nameController,
+                  cursorColor: AppColors.primaryPink,
                   decoration: const InputDecoration(
                     labelText: 'Full Name',
-                    icon: Icon(Icons.person_outline, color: AppColors.primaryPurple),
+                    labelStyle: TextStyle(color: AppColors.primaryPurple),
+                    icon: Icon(Icons.person_outline, color: AppColors.primaryPink),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.primaryPink),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _uniController,
+                  cursorColor: AppColors.primaryPink,
                   decoration: const InputDecoration(
                     labelText: 'University / Institution',
-                    icon: Icon(Icons.school_outlined, color: AppColors.primaryPurple),
+                    labelStyle: TextStyle(color: AppColors.primaryPurple),
+                    icon: Icon(Icons.school_outlined, color: AppColors.primaryPink),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.primaryPink),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+                  height: 46,
                   child: ElevatedButton(
                     onPressed: _saveProfile,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryPurple,
                       foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: const Text('Save Profile Updates'),
@@ -107,12 +178,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 28),
 
           // Section 2: Display & Accessibility
-          Text('Display & Style', style: theme.textTheme.headlineMedium),
+          Text(
+            'Display & Style',
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: Column(
@@ -123,10 +197,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: (val) {
                     themeProvider.toggleTheme();
                   },
-                  title: const Text('Pastel Dark Mode'),
+                  title: const Text('Pastel Dark Mode', style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: const Text('Easy on eyes for night study'),
-                  activeColor: AppColors.primaryPurple,
-                  secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryPurple),
+                  activeColor: AppColors.primaryPink,
+                  secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryPink),
                 ),
                 const Divider(height: 1),
                 
@@ -163,7 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         min: 12.0,
                         max: 20.0,
                         divisions: 4,
-                        activeColor: AppColors.primaryPurple,
+                        activeColor: AppColors.primaryPink,
                         inactiveColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                         onChanged: (val) {
                           setState(() {
@@ -180,10 +254,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Language Dropdown
                 ListTile(
                   leading: const Icon(Icons.translate, color: AppColors.primaryPurple),
-                  title: const Text('App Language'),
+                  title: const Text('App Language', style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(_language == 'en' ? 'English (Urdu setting locked until Phase 3)' : 'Urdu'),
                   trailing: DropdownButton<String>(
                     value: _language,
+                    underline: const SizedBox.shrink(),
                     items: const [
                       DropdownMenuItem(value: 'en', child: Text('English')),
                       DropdownMenuItem(value: 'ur', child: Text('Urdu (Locked)')),
@@ -193,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Urdu language translation will be unlocked in Phase 3.'),
-                            backgroundColor: AppColors.primaryPurple,
+                            backgroundColor: AppColors.primaryPink,
                           ),
                         );
                         return;
@@ -212,14 +287,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 28),
 
-          // Section 3: About App & References
-          Text('About PhysioKit', style: theme.textTheme.headlineMedium),
+          // Section 3: App Maintenance / Cache Clearing
+          Text(
+            'Maintenance & Optimization',
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.cleaning_services_outlined, color: AppColors.primaryPink),
+                  title: const Text('Clear App Cache & Data', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                  subtitle: const Text('Clears memory cache, viewed history logs, and resets preferences'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.redAccent),
+                  onTap: () => _confirmClearCache(context),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // Section 4: About App & References
+          Text(
+            'About PhysioKit',
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: Column(
@@ -232,7 +336,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'This clinical utility transforms textbook procedures into native, offline-accessible modules for students and clinicians.',
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    height: 1.4,
+                  ),
                 ),
                 const Divider(height: 24),
                 const Text(
@@ -242,12 +348,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 6),
                 Text(
                   'Based on: "The Physiotherapist\'s Pocket Book - Essential Facts at Your Fingertips" (2nd Edition) by Karen Kenyon and Jonathan Kenyon.',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, height: 1.35),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Disclaimer: Designed for educational support. Always verify diagnosis using comprehensive clinical indicators.',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11, color: AppColors.error),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11, color: AppColors.error, height: 1.3),
                 ),
               ],
             ),

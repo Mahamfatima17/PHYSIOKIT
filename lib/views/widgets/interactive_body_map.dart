@@ -1,7 +1,8 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/colors.dart';
 import '../screens/test_library_screen.dart';
+import 'three_d_anatomy_painter.dart';
 
 class InteractiveBodyMap extends StatefulWidget {
   const InteractiveBodyMap({super.key});
@@ -10,242 +11,304 @@ class InteractiveBodyMap extends StatefulWidget {
   State<InteractiveBodyMap> createState() => _InteractiveBodyMapState();
 }
 
-class _InteractiveBodyMapState extends State<InteractiveBodyMap> {
-  String _selectedRegion = 'Select a region';
+class _InteractiveBodyMapState extends State<InteractiveBodyMap>
+    with SingleTickerProviderStateMixin {
+  double _rotationY = 0.0;
+  double _rotationX = 0.0;
+  late AnimationController _pulseController;
 
-  final List<BodyHotspot> _hotspots = [
-    BodyHotspot(name: 'Cervical spine', label: 'Cervical Spine', top: 0.15, left: 0.5),
-    BodyHotspot(name: 'Shoulder', label: 'Shoulders', top: 0.23, left: 0.32),
-    BodyHotspot(name: 'Shoulder', label: 'Shoulders', top: 0.23, left: 0.68),
-    BodyHotspot(name: 'Elbow', label: 'Elbows', top: 0.38, left: 0.25),
-    BodyHotspot(name: 'Elbow', label: 'Elbows', top: 0.38, left: 0.75),
-    BodyHotspot(name: 'Wrist and hand', label: 'Wrists & Hands', top: 0.52, left: 0.21),
-    BodyHotspot(name: 'Wrist and hand', label: 'Wrists & Hands', top: 0.52, left: 0.79),
-    BodyHotspot(name: 'Pelvis', label: 'Pelvis & SIJ', top: 0.5),
-    BodyHotspot(name: 'Hip', label: 'Hips', top: 0.56, left: 0.4),
-    BodyHotspot(name: 'Hip', label: 'Hips', top: 0.56, left: 0.6),
-    BodyHotspot(name: 'Knee', label: 'Knees', top: 0.72, left: 0.38),
-    BodyHotspot(name: 'Knee', label: 'Knees', top: 0.72, left: 0.62),
-    BodyHotspot(name: 'Ankle and foot', label: 'Ankles & Feet', top: 0.88, left: 0.36),
-    BodyHotspot(name: 'Ankle and foot', label: 'Ankles & Feet', top: 0.88, left: 0.64),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
 
-  void _onTapHotspot(BodyHotspot hotspot) {
-    setState(() {
-      _selectedRegion = hotspot.label;
-    });
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
-    // Navigate to TestLibraryScreen directly
+  void _navigateToRegion(String regionKey) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => TestLibraryScreen(region: hotspot.name),
+        builder: (context) => TestLibraryScreen(region: regionKey),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: [
-        // Display selection indicator
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Container(
+      width: double.infinity,
+      height: 420,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.glassBgDark : AppColors.glassBgLight,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryPurple.withOpacity(isDark ? 0.08 : 0.04),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double containerW = constraints.maxWidth;
+            final double containerH = 420.0;
+
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanUpdate: (details) {
+                setState(() {
+                  _rotationY += details.delta.dx * 0.007;
+                  _rotationX -= details.delta.dy * 0.007;
+                  _rotationX = _rotationX.clamp(-0.4, 0.4);
+                });
+              },
+
+              onTapUp: (details) {
+                final tapPos = details.localPosition;
+                final centerX = containerW / 2;
+                final centerY = containerH / 2 - 20;
+
+                // Define 3D positions of the clickable body regions
+                final Map<String, Vector3> region3DCoords = {
+                  'Cervical spine': const Vector3(0.0, -0.58, 0.0),
+                  'Shoulder': const Vector3(0.18, -0.5, 0.0),
+                  'Elbow': const Vector3(0.25, -0.22, 0.0),
+                  'Wrist and hand': const Vector3(0.28, 0.05, 0.02),
+                  'Pelvis': const Vector3(0.0, 0.06, 0.0),
+                  'Hip': const Vector3(0.11, 0.08, 0.0),
+                  'Knee': const Vector3(0.12, 0.44, 0.02),
+                  'Ankle and foot': const Vector3(0.13, 0.78, -0.02),
+                };
+
+                double minDist = double.infinity;
+                String? closestRegion;
+
+                region3DCoords.forEach((regionKey, rawPt) {
+                  // Mirror for left / right clicks
+                  final pt = regionKey == 'Shoulder' || regionKey == 'Elbow' || regionKey == 'Wrist and hand' || regionKey == 'Hip' || regionKey == 'Knee' || regionKey == 'Ankle and foot'
+                      ? Vector3(rawPt.x * (tapPos.dx < centerX ? -1 : 1), rawPt.y, rawPt.z)
+                      : rawPt;
+
+                  // Rotate and project point
+                  final rotated = pt.rotateY(_rotationY).rotateX(_rotationX);
+                  final proj = rotated.project(containerW, containerH, 0.9, centerX, centerY);
+                  
+                  final dist = (tapPos - proj).distance;
+                  if (dist < minDist) {
+                    minDist = dist;
+                    closestRegion = regionKey;
+                  }
+                });
+
+                if (closestRegion != null && minDist < 45.0) {
+                  _navigateToRegion(closestRegion!);
+                }
+              },
+              child: Stack(
+                children: [
+                  // Subtle radial gradient background
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: Alignment.center,
+                          radius: 0.9,
+                          colors: [
+                            AppColors.primaryPurple.withOpacity(isDark ? 0.06 : 0.03),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Main 3D realistic skeleton model and muscle image with drag-to-rotate interaction
+                  Center(
+                    child: SizedBox(
+                      width: containerW * 0.9,
+                      height: containerH * 0.95,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // High-Resolution 3D Anatomical Skeleton Texture with 3D Perspective Rotation
+                          Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.0012)
+                              ..rotateY(_rotationY)
+                              ..rotateX(_rotationX),
+                            child: Image.asset(
+                              ((_rotationY.abs() % (math.pi * 2)) > math.pi / 2 && (_rotationY.abs() % (math.pi * 2)) < 3 * math.pi / 2)
+                                  ? 'assets/skeleton/skeleton_back_color.png'
+                                  : 'assets/skeleton/skeleton_base_color.png',
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
+                            ),
+                          ),
+
+                          // 3D Projected Bioluminescent Hotspots & Layer Highlights
+                          Positioned.fill(
+                            child: RepaintBoundary(
+                              child: AnimatedBuilder(
+                                animation: _pulseController,
+                                builder: (context, _) {
+                                  return CustomPaint(
+                                    size: Size(containerW * 0.9, containerH * 0.95),
+                                    painter: ThreeDAnatomyPainter(
+                                      rotationY: _rotationY,
+                                      rotationX: _rotationX,
+                                      zoom: 0.9,
+                                      visibleLayers: const {'bone', 'muscle'},
+                                      selectedId: null,
+                                      pulse: _pulseController.value,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+
+                  // Floating helper controls
+                  Positioned(
+                    left: 16,
+                    bottom: 14,
+                    child: Row(
+                      children: [
+                        Icon(Icons.swipe,
+                            size: 14,
+                            color: isDark ? Colors.white38 : AppColors.lightTextSecondary),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Drag to rotate • Tap a region below',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white38 : AppColors.lightTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Left Column (Cervical Spine, Shoulder, Elbow, Wrist)
+                  Positioned(
+                    left: 10,
+                    top: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildRegionButton('Cervical spine', 'Cervical Spine', isDark,
+                            icon: Icons.accessibility_new),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Shoulder', 'Shoulder Girdle', isDark,
+                            icon: Icons.fitness_center),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Elbow', 'Elbow Joint', isDark,
+                            icon: Icons.compare_arrows),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Wrist and hand', 'Wrist & Hand', isDark,
+                            icon: Icons.pan_tool_alt),
+                      ],
+                    ),
+                  ),
+
+                  // Right Column (Pelvis, Hip, Knee, Ankle)
+                  Positioned(
+                    right: 10,
+                    top: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _buildRegionButton('Pelvis', 'Pelvis & SIJ', isDark,
+                            icon: Icons.ring_volume),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Hip', 'Hip Joint', isDark,
+                            icon: Icons.directions_walk),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Knee', 'Knee Joint', isDark,
+                            icon: Icons.airline_seat_legroom_normal),
+                        const SizedBox(height: 10),
+                        _buildRegionButton('Ankle and foot', 'Ankle & Foot', isDark,
+                            icon: Icons.snowshoeing),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionButton(String regionKey, String label, bool isDark,
+      {IconData icon = Icons.link}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _navigateToRegion(regionKey),
+        borderRadius: BorderRadius.circular(14),
+        splashColor: AppColors.primaryPink.withOpacity(0.15),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkBorder : AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(20),
+            color: isDark ? AppColors.glassBgDark : Colors.white.withOpacity(0.75),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppColors.primaryPurple.withOpacity(0.18),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryPurple.withOpacity(0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.touch_app_outlined, size: 16, color: AppColors.primaryPurple),
-              const SizedBox(width: 8),
+              Icon(icon, size: 12, color: AppColors.primaryPink),
+              const SizedBox(width: 5),
               Text(
-                _selectedRegion,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: AppColors.primaryPurple,
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.2,
+                  color: isDark ? Colors.white70 : AppColors.lightTextPrimary,
                 ),
               ),
+              const SizedBox(width: 3),
+              Icon(Icons.chevron_right, size: 12,
+                  color: AppColors.primaryPink.withOpacity(0.6)),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        // Interactive Silhouette Canvas
-        AspectRatio(
-          aspectRatio: 0.75, // Standard vertical silhouette proportion
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              final height = constraints.maxHeight;
-
-              return Stack(
-                children: [
-                  // Stylized Human Outline drawn with CustomPaint
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: isDark ? 0.15 : 0.08,
-                      child: CustomPaint(
-                        painter: SilhouettePainter(themeColor: AppColors.primaryPurple),
-                      ),
-                    ),
-                  ),
-                  // Hotspot markers
-                  ..._hotspots.map((hotspot) {
-                    final double posX = hotspot.left * width;
-                    final double posY = hotspot.top * height;
-
-                    return Positioned(
-                      left: posX - 20,
-                      top: posY - 20,
-                      child: GestureDetector(
-                        onTap: () => _onTapHotspot(hotspot),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          color: Colors.transparent, // expand touch area
-                          child: Center(
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryPurple,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primaryPurple.withOpacity(0.5),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                          .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                          .scale(
-                            begin: const Offset(0.9, 0.9),
-                            end: const Offset(1.2, 1.2),
-                            duration: 1000.ms,
-                            curve: Curves.easeInOut,
-                          ),
-                    );
-                  }),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
-}
-
-class BodyHotspot {
-  final String name; // DB key
-  final String label; // UI display
-  final double top; // y position as ratio (0.0 to 1.0)
-  final double left; // x position as ratio (0.0 to 1.0)
-
-  BodyHotspot({
-    required this.name,
-    required this.label,
-    required this.top,
-    this.left = 0.5,
-  });
-}
-
-// Custom Painter to draw a modern, clean medical human silhouette
-class SilhouettePainter extends CustomPainter {
-  final Color themeColor;
-
-  SilhouettePainter({required this.themeColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = themeColor
-      ..style = PaintingStyle.fill;
-
-    final w = size.width;
-    final h = size.height;
-
-    final path = Path();
-    
-    // Draw Head
-    path.addOval(Rect.fromCircle(center: Offset(w * 0.5, h * 0.08), radius: w * 0.06));
-
-    // Draw Neck
-    path.moveTo(w * 0.47, h * 0.12);
-    path.lineTo(w * 0.53, h * 0.12);
-    path.lineTo(w * 0.53, h * 0.15);
-    path.lineTo(w * 0.47, h * 0.15);
-    path.close();
-
-    // Draw Torso and Shoulders
-    path.moveTo(w * 0.5, h * 0.15);
-    // Left shoulder curve
-    path.quadraticBezierTo(w * 0.35, h * 0.16, w * 0.32, h * 0.23);
-    // Left arm down
-    path.lineTo(w * 0.28, h * 0.38);
-    path.lineTo(w * 0.22, h * 0.52);
-    // Left fingers
-    path.quadraticBezierTo(w * 0.20, h * 0.55, w * 0.22, h * 0.56);
-    // Left inner arm up
-    path.lineTo(w * 0.26, h * 0.52);
-    path.lineTo(w * 0.32, h * 0.38);
-    path.lineTo(w * 0.37, h * 0.27);
-    
-    // Left side of torso down
-    path.lineTo(w * 0.38, h * 0.5);
-    // Hips left
-    path.lineTo(w * 0.38, h * 0.56);
-    // Left leg down
-    path.lineTo(w * 0.36, h * 0.72);
-    path.lineTo(w * 0.34, h * 0.88);
-    // Left foot
-    path.quadraticBezierTo(w * 0.31, h * 0.92, w * 0.35, h * 0.93);
-    path.lineTo(w * 0.41, h * 0.93);
-    // Left inner leg up
-    path.lineTo(w * 0.44, h * 0.88);
-    path.lineTo(w * 0.46, h * 0.72);
-    path.lineTo(w * 0.47, h * 0.58);
-    
-    // Crotch
-    path.lineTo(w * 0.5, h * 0.58);
-    
-    // Right inner leg up (mirrored)
-    path.lineTo(w * 0.53, h * 0.58);
-    path.lineTo(w * 0.54, h * 0.72);
-    path.lineTo(w * 0.56, h * 0.88);
-    path.lineTo(w * 0.59, h * 0.93);
-    // Right foot
-    path.quadraticBezierTo(w * 0.69, h * 0.92, w * 0.66, h * 0.88);
-    // Right outer leg up
-    path.lineTo(w * 0.64, h * 0.72);
-    path.lineTo(w * 0.62, h * 0.56);
-    // Hips right
-    path.lineTo(w * 0.62, h * 0.5);
-    
-    // Right side of torso down
-    path.lineTo(w * 0.63, h * 0.27);
-    path.lineTo(w * 0.68, h * 0.38);
-    path.lineTo(w * 0.74, h * 0.52);
-    // Right fingers
-    path.quadraticBezierTo(w * 0.80, h * 0.55, w * 0.78, h * 0.56);
-    // Right outer arm up
-    path.lineTo(w * 0.72, h * 0.52);
-    path.lineTo(w * 0.68, h * 0.38);
-    path.lineTo(w * 0.68, h * 0.23);
-    // Right shoulder curve
-    path.quadraticBezierTo(w * 0.65, h * 0.16, w * 0.5, h * 0.15);
-
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -6,9 +6,14 @@ import '../../providers/learning_provider.dart';
 import 'bookmarks_screen.dart';
 import 'settings_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -23,10 +28,13 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
+              if (mounted) {
+                setState(() {});
+              }
             },
           ),
         ],
@@ -54,7 +62,10 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 28),
                 
                 // Achievements Badges Section
-                Text('Unlocked Badges', style: theme.textTheme.headlineMedium),
+                Text(
+                  'Unlocked Badges',
+                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 12),
                 badges.isEmpty
                     ? _buildEmptyBadgesCard(theme, isDark)
@@ -62,7 +73,10 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 28),
                 
                 // Quick shortcuts
-                Text('Quick Navigation', style: theme.textTheme.headlineMedium),
+                Text(
+                  'Quick Navigation',
+                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 12),
                 _buildShortcuts(context, theme, isDark),
               ],
@@ -79,8 +93,15 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryPurple.withOpacity(0.04),
+            blurRadius: 12,
+            spreadRadius: 2,
+          )
+        ],
       ),
       child: Row(
         children: [
@@ -89,11 +110,12 @@ class ProfileScreen extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: AppColors.primaryPurple.withOpacity(0.1),
+              color: AppColors.primaryPink.withOpacity(0.1),
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primaryPink.withOpacity(0.2), width: 2),
             ),
             child: const Center(
-              child: Icon(Icons.school, size: 36, color: AppColors.primaryPurple),
+              child: Icon(Icons.school, size: 36, color: AppColors.primaryPink),
             ),
           ),
           const SizedBox(width: 16),
@@ -104,27 +126,30 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: theme.textTheme.headlineLarge?.copyWith(fontSize: 20),
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   university,
                   style: theme.textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.mintGreen.withOpacity(isDark ? 0.08 : 0.8),
+                    color: AppColors.primaryPink.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.success.withOpacity(0.2)),
+                    border: Border.all(color: AppColors.primaryPink.withOpacity(0.2)),
                   ),
                   child: const Text(
                     'Doctor of Physical Therapy (DPT)',
                     style: TextStyle(
                       fontSize: 10,
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryPink,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -157,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
             value: '${progress.toStringAsFixed(0)}%',
             subtitle: 'Learning completed',
             icon: Icons.pie_chart_outline,
-            color: AppColors.success,
+            color: AppColors.primaryPink,
             isDark: isDark,
             theme: theme,
           ),
@@ -179,7 +204,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
@@ -189,10 +214,14 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: theme.textTheme.headlineLarge?.copyWith(fontSize: 22, color: color),
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontSize: 22,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
-          Text(title, style: theme.textTheme.labelLarge),
+          Text(title, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
           Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11)),
         ],
@@ -220,7 +249,7 @@ class ProfileScreen extends StatelessWidget {
         title: 'Knee Specialist',
         description: 'Completed Knee tests',
         icon: Icons.accessibility,
-        color: Colors.blue,
+        color: Colors.pink,
       ));
     }
 
@@ -242,7 +271,7 @@ class ProfileScreen extends StatelessWidget {
         title: 'Neuro Expert',
         description: 'Completed Neurology tests',
         icon: Icons.psychology,
-        color: Colors.teal,
+        color: Colors.deepPurple,
       ));
     }
 
@@ -265,7 +294,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Center(
@@ -275,7 +304,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'No badges unlocked yet.',
-              style: theme.textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
@@ -340,7 +369,7 @@ class ProfileScreen extends StatelessWidget {
           title: 'My Bookmarks',
           subtitle: 'View saved special tests',
           icon: Icons.bookmark,
-          color: AppColors.primaryPurple,
+          color: AppColors.primaryPink,
           isDark: isDark,
           onTap: () {
             Navigator.of(context).push(
@@ -353,11 +382,11 @@ class ProfileScreen extends StatelessWidget {
           title: 'History log',
           subtitle: 'Check recently viewed topics',
           icon: Icons.history,
-          color: AppColors.info,
+          color: AppColors.primaryPurple,
           isDark: isDark,
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const BookmarksScreen()), // points to tab 2 in bookmark Screen
+              MaterialPageRoute(builder: (context) => const BookmarksScreen()),
             );
           },
         ),
@@ -374,6 +403,7 @@ class ProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Card(
+      elevation: 0,
       child: ListTile(
         leading: Container(
           width: 40,

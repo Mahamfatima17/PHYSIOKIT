@@ -11,61 +11,129 @@ import '../../models/special_test.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  // Helper method for authentic Frosted Glass containers
+  BoxDecoration _glassDecoration(bool isDark) {
+    return BoxDecoration(
+      color: isDark ? AppColors.glassBgDark : AppColors.glassBgLight,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+        width: 1.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primaryPurple.withOpacity(isDark ? 0.05 : 0.02),
+          blurRadius: 15,
+          spreadRadius: 1,
+        )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header & Greeting
-              _buildHeader(theme),
-              const SizedBox(height: 24),
-              
-              // Mock Search Bar (Tapping switches tab to Search)
-              _buildSearchBar(context, theme, isDark),
-              const SizedBox(height: 24),
-              
-              // Continue Learning progress card
-              _buildProgressCard(context, theme, isDark),
-              const SizedBox(height: 28),
-              
-              // Interactive Body Map Heading
-              Text(
-                'Interactive Body Map',
-                style: theme.textTheme.headlineMedium,
+      body: Stack(
+        children: [
+          // 1. BACKGROUND GLOW EFFECTS (Creates visual depth behind glass layers)
+          Positioned(
+            left: -100,
+            top: 50,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primaryPink.withOpacity(isDark ? 0.12 : 0.08),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryPink.withOpacity(isDark ? 0.2 : 0.1),
+                    blurRadius: 100,
+                    spreadRadius: 20,
+                  )
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Tap a joint hotspot to view associated special tests.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              
-              // Interactive Body Map Widget
-              const InteractiveBodyMap(),
-              const SizedBox(height: 32),
-              
-              // Major Categories List
-              Text(
-                'Anatomical Categories',
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              _buildCategoriesGrid(context, theme, isDark),
-              const SizedBox(height: 32),
-              
-              // Recent / Popular Tests
-              _buildRecentTestsSection(context, theme, isDark),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            right: -80,
+            top: 300,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primaryPurple.withOpacity(isDark ? 0.12 : 0.08),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryPurple.withOpacity(isDark ? 0.2 : 0.1),
+                    blurRadius: 110,
+                    spreadRadius: 20,
+                  )
+                ],
+              ),
+            ),
+          ),
+
+          // 2. MAIN SCROLL VIEW
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header & Greeting
+                  _buildHeader(theme),
+                  const SizedBox(height: 24),
+                  
+                  // Mock Search Bar (Glassmorphic)
+                  _buildSearchBar(context, theme, isDark),
+                  const SizedBox(height: 24),
+                  
+                  // Continue Learning progress card (Glassmorphic)
+                  _buildProgressCard(context, theme, isDark),
+                  const SizedBox(height: 28),
+                  
+                  // Interactive Body Map Heading
+                  Text(
+                    'Interactive Body Map',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Tap a joint hotspot to view associated special tests.',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Interactive Body Map Widget
+                  const InteractiveBodyMap(),
+                  const SizedBox(height: 32),
+                  
+                  // Major Categories List
+                  Text(
+                    'Anatomical Categories',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCategoriesGrid(context, theme, isDark),
+                  const SizedBox(height: 32),
+                  
+                  // Recent / Popular Tests
+                  _buildRecentTestsSection(context, theme, isDark),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -74,32 +142,40 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Good morning,',
-              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16),
-            ),
-            Text(
-              'Future Therapist',
-              style: theme.textTheme.headlineLarge?.copyWith(
-                color: AppColors.primaryPurple,
-                fontSize: 28,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Good morning,',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                'Future Therapist',
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  color: AppColors.primaryPink,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
+          ),
         ),
         Container(
-          width: 48,
-          height: 48,
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
-            color: AppColors.primaryLight,
+            color: AppColors.primaryLight.withOpacity(0.4),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primaryPurple.withOpacity(0.2)),
+            border: Border.all(color: AppColors.primaryPink.withOpacity(0.2), width: 1.5),
           ),
           child: const Center(
-            child: Icon(Icons.person, color: AppColors.primaryPurple),
+            child: Icon(Icons.person, color: AppColors.primaryPink, size: 26),
           ),
         ),
       ],
@@ -109,7 +185,6 @@ class HomeScreen extends StatelessWidget {
   Widget _buildSearchBar(BuildContext context, ThemeData theme, bool isDark) {
     return GestureDetector(
       onTap: () {
-        // Jump to Search tab in MainLayout (tab 3)
         final mainLayoutState = context.findAncestorStateOfType<MainLayoutState>();
         if (mainLayoutState != null) {
           mainLayoutState.setTab(3);
@@ -117,26 +192,19 @@ class HomeScreen extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
+        decoration: _glassDecoration(isDark),
         child: Row(
           children: [
             const Icon(Icons.search, color: AppColors.primaryPurple),
             const SizedBox(width: 12),
-            Text(
-              'Search by test, condition, or joint...',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            Expanded(
+              child: Text(
+                'Search by test, condition, or joint...',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -155,19 +223,7 @@ class HomeScreen extends StatelessWidget {
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [AppColors.darkSurface, AppColors.darkSurface]
-                  : [AppColors.primaryLight, const Color(0xFFFBF9FF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.primaryPurple.withOpacity(0.1),
-            ),
-          ),
+          decoration: _glassDecoration(isDark),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -178,12 +234,13 @@ class HomeScreen extends StatelessWidget {
                     'Learning Progress',
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: AppColors.primaryPurple,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     '${progress.toStringAsFixed(0)}%',
                     style: theme.textTheme.titleLarge?.copyWith(
-                      color: AppColors.primaryPurple,
+                      color: AppColors.primaryPink,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -192,7 +249,9 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'You completed $completed of $total topics from the textbook.',
-                style: theme.textTheme.bodyMedium,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  height: 1.35,
+                ),
               ),
               const SizedBox(height: 16),
               ClipRRect(
@@ -201,7 +260,7 @@ class HomeScreen extends StatelessWidget {
                   value: progress / 100.0,
                   minHeight: 8,
                   backgroundColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryPurple),
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryPink),
                 ),
               ),
             ],
@@ -213,10 +272,10 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildCategoriesGrid(BuildContext context, ThemeData theme, bool isDark) {
     final categories = [
-      _CategoryItem(name: 'Upper Limb', icon: Icons.gesture, color: AppColors.primaryLight, count: '34 Tests'),
-      _CategoryItem(name: 'Lower Limb', icon: Icons.directions_walk, color: AppColors.softPeach, count: '34 Tests'),
-      _CategoryItem(name: 'Spine', icon: Icons.accessibility_new, color: AppColors.mintGreen, count: '9 Tests'),
-      _CategoryItem(name: 'Neurology', icon: Icons.psychology, color: AppColors.skyBlue, count: '19 Tests'),
+      _CategoryItem(name: 'Upper Limb', icon: Icons.gesture, color: AppColors.primaryLight.withOpacity(0.55), count: '34 Tests'),
+      _CategoryItem(name: 'Lower Limb', icon: Icons.directions_walk, color: AppColors.softPeach.withOpacity(0.55), count: '34 Tests'),
+      _CategoryItem(name: 'Spine', icon: Icons.accessibility_new, color: const Color(0xFFECFDF5).withOpacity(0.55), count: '9 Tests'),
+      _CategoryItem(name: 'Neurology', icon: Icons.psychology, color: AppColors.skyBlue.withOpacity(0.55), count: '19 Tests'),
     ];
 
     return GridView.builder(
@@ -226,7 +285,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.35,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -239,14 +298,15 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : cat.color,
-              borderRadius: BorderRadius.circular(16),
+              color: isDark ? AppColors.glassBgDark : cat.color,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
+                width: 1.5,
               ),
             ),
             child: Column(
@@ -259,11 +319,20 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       cat.name,
-                      style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       cat.count,
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -280,7 +349,6 @@ class HomeScreen extends StatelessWidget {
       builder: (context, provider, child) {
         final recent = provider.recentHistory;
         if (recent.isEmpty) {
-          // If history is empty, show some popular default tests (e.g. Lachman, Spurling, McMurray)
           final popular = provider.allTests.where((t) =>
             t.name.contains('Lachman') || 
             t.name.contains('Spurling') || 
@@ -294,11 +362,13 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 'Popular Special Tests',
-                style: theme.textTheme.headlineMedium,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 120,
+                height: 135,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: popular.length,
@@ -317,11 +387,13 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               'Recently Studied',
-              style: theme.textTheme.headlineMedium,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 120,
+              height: 135,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: recent.length,
@@ -339,14 +411,10 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildTestCard(BuildContext context, SpecialTest test, ThemeData theme, bool isDark) {
     return Container(
-      width: 220,
+      width: 230,
       margin: const EdgeInsets.only(right: 16),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
-        ),
-        color: isDark ? AppColors.darkSurface : Colors.white,
+      child: Container(
+        decoration: _glassDecoration(isDark),
         child: InkWell(
           onTap: () {
             Navigator.of(context).push(
@@ -355,7 +423,7 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -364,35 +432,45 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   test.name,
-                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 15),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  test.purpose,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 4),
+                Expanded(
+                  child: Text(
+                    test.purpose,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12,
+                      height: 1.35,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryPurple.withOpacity(0.1),
+                        color: AppColors.primaryPink.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         test.region,
                         style: const TextStyle(
                           fontSize: 10,
-                          color: AppColors.primaryPurple,
-                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryPink,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.primaryPurple),
+                    const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.primaryPink),
                   ],
                 ),
               ],

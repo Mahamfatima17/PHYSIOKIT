@@ -1,31 +1,39 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Pastel Medical Theme Colors
-  static const Color primaryPurple = Color(0xFF7B61FF); // Rich Lavender Purple
-  static const Color primaryLight = Color(0xFFF3F0FF);  // Very light lavender
-  static const Color softPeach = Color(0xFFFFE5D9);     // Accent Soft Peach
-  static const Color mintGreen = Color(0xFFE8F8F5);     // Accent Mint Green
-  static const Color skyBlue = Color(0xFFE8F1F5);       // Soft Accent Sky Blue
-  static const Color darkPurple = Color(0xFF4A3E7F);    // Dark Accent Purple
+  // Vibrant Pink & Purple Medical Theme Colors
+  static const Color primaryPink = Color(0xFFEC4899);     // Vibrant Pink (Accent/Highlights)
+  static const Color primaryPurple = Color(0xFF8B5CF6);   // Vibrant Purple (Brand Primary)
+  static const Color primaryLight = Color(0xFFFDF4FF);    // Very light lavender/pink bg tint
+  static const Color accentViolet = Color(0xFFA78BFA);    // Medium Soft Purple
+  static const Color darkPurple = Color(0xFF5B21B6);      // Dark Brand Accent
+  static const Color softPeach = Color(0xFFFCE7F3);       // Soft Pink/Peach container tint
+  static const Color mintGreen = Color(0xFFD1FAE5);       // Ambient success highlight tint
+  static const Color skyBlue = Color(0xFFE0F2FE);         // Ambient info highlight tint
+
+  // Glassmorphic Specific Translucent Colors
+  static Color get glassBgLight => Colors.white.withOpacity(0.4);
+  static Color get glassBgDark => const Color(0xFF1F1A2D).withOpacity(0.55);
+  static Color get glassBorderLight => Colors.white.withOpacity(0.25);
+  static Color get glassBorderDark => Colors.white.withOpacity(0.08);
 
   // Functional Colors
-  static const Color success = Color(0xFF2ECC71);       // Clean Green
-  static const Color warning = Color(0xFFF39C12);       // Muted Orange
-  static const Color error = Color(0xFFE74C3C);         // Soft Red
-  static const Color info = Color(0xFF3498DB);          // Soft Blue
+  static const Color success = Color(0xFF10B981);       // Clean Green
+  static const Color warning = Color(0xFFF59E0B);       // Warm Orange
+  static const Color error = Color(0xFFEF4444);         // Vibrant Red
+  static const Color info = Color(0xFF3B82F6);          // Vibrant Blue
 
   // Light Theme Palette
-  static const Color lightBg = Color(0xFFFAFAFC);        // Cream White Background
+  static const Color lightBg = Color(0xFFFAF5FF);        // Cream orchid white background
   static const Color lightSurface = Color(0xFFFFFFFF);   // White Cards
-  static const Color lightTextPrimary = Color(0xFF2D2C3C); // Dark Grey Text
-  static const Color lightTextSecondary = Color(0xFF7E7D8A); // Medium Grey Text
-  static const Color lightBorder = Color(0xFFEEEEF2);    // Very light grey border
+  static const Color lightTextPrimary = Color(0xFF1F1A24); // Deep charcoal
+  static const Color lightTextSecondary = Color(0xFF6B7280); // Medium cool grey
+  static const Color lightBorder = Color(0xFFF3E8FF);    // Very light lavender border
 
-  // Dark Theme Palette (Pastel-friendly dark mode)
-  static const Color darkBg = Color(0xFF14131A);         // Deep Dark Violet-Grey Background
-  static const Color darkSurface = Color(0xFF1D1B26);    // Dark Violet-Grey Cards
-  static const Color darkTextPrimary = Color(0xFFF1F0F5); // White-Grey Text
-  static const Color darkTextSecondary = Color(0xFF9E9CAF); // Light Grey Text
-  static const Color darkBorder = Color(0xFF2E2C3D);     // Dark Violet border
+  // Dark Theme Palette
+  static const Color darkBg = Color(0xFF0F0B15);         // Deep Dark Orchid/Black Background
+  static const Color darkSurface = Color(0xFF1A1326);    // Dark purple-grey Cards
+  static const Color darkTextPrimary = Color(0xFFF3F4F6); // Soft white
+  static const Color darkTextSecondary = Color(0xFF9CA3AF); // Light grey text
+  static const Color darkBorder = Color(0xFF2E2245);     // Dark orchid border
 }

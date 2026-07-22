@@ -36,9 +36,9 @@ class _BookmarksScreenState extends State<BookmarksScreen> with SingleTickerProv
         title: const Text('Saved & History'),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primaryPurple,
+          labelColor: AppColors.primaryPink,
           unselectedLabelColor: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-          indicatorColor: AppColors.primaryPurple,
+          indicatorColor: AppColors.primaryPink,
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
             Tab(text: 'Favorites', icon: Icon(Icons.bookmark)),
@@ -63,25 +63,29 @@ class _BookmarksScreenState extends State<BookmarksScreen> with SingleTickerProv
 
         if (favorites.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.bookmark_outline,
-                  size: 64,
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No bookmarks saved yet.',
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Tap the bookmark icon in any test details to save.',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.bookmark_outline,
+                    size: 64,
+                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No bookmarks saved yet.',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap the bookmark icon in any test details to save.',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -94,8 +98,12 @@ class _BookmarksScreenState extends State<BookmarksScreen> with SingleTickerProv
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Card(
+                elevation: 0,
                 child: ListTile(
-                  title: Text(test.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    test.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
                     test.purpose,
                     maxLines: 1,
@@ -172,9 +180,13 @@ class _BookmarksScreenState extends State<BookmarksScreen> with SingleTickerProv
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Card(
+                      elevation: 0,
                       child: ListTile(
-                        leading: const Icon(Icons.history, color: AppColors.primaryPurple),
-                        title: Text(test.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        leading: const Icon(Icons.history, color: AppColors.primaryPink),
+                        title: Text(
+                          test.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         subtitle: Text(
                           test.purpose,
                           maxLines: 1,

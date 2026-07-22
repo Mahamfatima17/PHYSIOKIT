@@ -61,6 +61,7 @@ class TestLibraryScreen extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: Card(
+                  elevation: 0,
                   child: InkWell(
                     onTap: () {
                       Navigator.of(context).push(
@@ -74,13 +75,22 @@ class TestLibraryScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
                         children: [
-                          // Status Indicator (dot)
+                          // Status Indicator (glowing green/pink)
                           Container(
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
                               color: isStudied ? AppColors.success : Colors.transparent,
                               shape: BoxShape.circle,
+                              boxShadow: isStudied
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColors.success.withOpacity(0.5),
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      )
+                                    ]
+                                  : null,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -113,7 +123,7 @@ class TestLibraryScreen extends StatelessWidget {
                                     _buildBadge(test.category, AppColors.primaryPurple),
                                     if (region == null) ...[
                                       const SizedBox(width: 8),
-                                      _buildBadge(test.region, AppColors.info),
+                                      _buildBadge(test.region, AppColors.primaryPink),
                                     ],
                                   ],
                                 ),
@@ -126,7 +136,7 @@ class TestLibraryScreen extends StatelessWidget {
                           IconButton(
                             icon: Icon(
                               isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                              color: AppColors.primaryPurple,
+                              color: AppColors.primaryPink,
                             ),
                             onPressed: () {
                               provider.toggleBookmark(test.id);
