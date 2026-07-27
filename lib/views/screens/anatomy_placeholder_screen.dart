@@ -673,7 +673,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
             top: 85,
             bottom: 280,
             child: SizedBox(
-              width: 110,
+              width: 130,
               child: AnimatedBuilder(
                 animation: _pulseController,
                 builder: (context, _) {
@@ -688,6 +688,8 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                     itemBuilder: (context, index) {
                       final hotspot = visibleHotspots[index];
                       final isSelected = hotspot.id == _selectedElementId;
+                      // Get the region for this hotspot from anatomy database
+                      final elementData = _anatomyDb[hotspot.id];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Material(
@@ -697,6 +699,19 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                               setState(() {
                                 _selectedElementId = hotspot.id;
                               });
+                            },
+                            onDoubleTap: () {
+                              // Double-tap navigates directly to tests
+                              if (elementData != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TestLibraryScreen(
+                                      region: elementData.region,
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                             borderRadius: BorderRadius.circular(10),
                             child: Container(
@@ -743,6 +758,32 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  // Navigation arrow to tests
+                                  if (elementData != null)
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => TestLibraryScreen(
+                                              region: elementData.region,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 2),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 10,
+                                          color: isSelected
+                                              ? hotspot.color
+                                              : (isDark
+                                                  ? Colors.white38
+                                                  : AppColors.lightTextSecondary),
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
