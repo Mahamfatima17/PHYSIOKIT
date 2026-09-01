@@ -566,21 +566,21 @@ class ThreeDAnatomyModel {
   static List<List<Vector3>> _generateLimbMeshes() {
     final list = <List<Vector3>>[];
     // Humerus L/R
-    list.addAll(_generateCylinderMesh(joints['shoulder_l']!, joints['elbow_l']!, 0.022));
-    list.addAll(_generateCylinderMesh(joints['shoulder_r']!, joints['elbow_r']!, 0.022));
+    list.addAll(_generateCylinderMesh(joints['shoulder_l']!, joints['elbow_l']!, 0.012));
+    list.addAll(_generateCylinderMesh(joints['shoulder_r']!, joints['elbow_r']!, 0.012));
     // Femur L/R
-    list.addAll(_generateCylinderMesh(joints['hip_l']!, joints['knee_l']!, 0.028));
-    list.addAll(_generateCylinderMesh(joints['hip_r']!, joints['knee_r']!, 0.028));
+    list.addAll(_generateCylinderMesh(joints['hip_l']!, joints['knee_l']!, 0.016));
+    list.addAll(_generateCylinderMesh(joints['hip_r']!, joints['knee_r']!, 0.016));
     // Tibia L/R
-    list.addAll(_generateCylinderMesh(joints['knee_l']!, joints['ankle_l']!, 0.020));
-    list.addAll(_generateCylinderMesh(joints['knee_r']!, joints['ankle_r']!, 0.020));
+    list.addAll(_generateCylinderMesh(joints['knee_l']!, joints['ankle_l']!, 0.011));
+    list.addAll(_generateCylinderMesh(joints['knee_r']!, joints['ankle_r']!, 0.011));
     // Radius / Ulna L/R
-    list.addAll(_generateCylinderMesh(joints['elbow_l']!, joints['wrist_l']!, 0.016));
-    list.addAll(_generateCylinderMesh(joints['elbow_r']!, joints['wrist_r']!, 0.016));
+    list.addAll(_generateCylinderMesh(joints['elbow_l']!, joints['wrist_l']!, 0.009));
+    list.addAll(_generateCylinderMesh(joints['elbow_r']!, joints['wrist_r']!, 0.009));
     // Sternum & Clavicles
-    list.addAll(_generateCylinderMesh(joints['sternum_top']!, joints['sternum_bottom']!, 0.025));
-    list.addAll(_generateCylinderMesh(joints['shoulder_l']!, joints['sternum_top']!, 0.012));
-    list.addAll(_generateCylinderMesh(joints['shoulder_r']!, joints['sternum_top']!, 0.012));
+    list.addAll(_generateCylinderMesh(joints['sternum_top']!, joints['sternum_bottom']!, 0.014));
+    list.addAll(_generateCylinderMesh(joints['shoulder_l']!, joints['sternum_top']!, 0.007));
+    list.addAll(_generateCylinderMesh(joints['shoulder_r']!, joints['sternum_top']!, 0.007));
 
     return list;
   }
@@ -1062,6 +1062,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
   final Set<String> visibleLayers;
   final String? selectedId;
   final double pulse;
+  final bool drawWireframe;
 
   ThreeDAnatomyPainter({
     required this.rotationY,
@@ -1070,6 +1071,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
     required this.visibleLayers,
     this.selectedId,
     required this.pulse,
+    this.drawWireframe = true,
   });
 
   @override
@@ -1085,9 +1087,10 @@ class ThreeDAnatomyPainter extends CustomPainter {
       rotatedJoints[key] = pt.rotateY(rotationY).rotateX(rotationX);
     });
 
-    // ==========================================
-    // 0. ANATOMICAL HUMAN BODY SILHOUETTE OUTLINE
-    // ==========================================
+    if (drawWireframe) {
+      // ==========================================
+      // 0. ANATOMICAL HUMAN BODY SILHOUETTE OUTLINE
+      // ==========================================
     final silhouetteLightDir = Vector3(0.2, -0.8, 0.6).normalize();
     for (final quad in ThreeDAnatomyModel.cachedBodySilhouette) {
       final rQuad = quad.map((pt) => pt.rotateY(rotationY).rotateX(rotationX)).toList();
@@ -1120,7 +1123,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
             ..style = PaintingStyle.fill);
 
           c.drawPath(path, Paint()
-            ..color = const Color(0xFFEC4899).withOpacity(0.08)
+            ..color = const Color(0xFFEC4899).withValues(alpha: 0.08)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 0.5);
         },
@@ -1189,7 +1192,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
 
             // Subtle edge wireframe
             c.drawPath(path, Paint()
-              ..color = boneColor.withOpacity(isBoneSelected ? 0.6 : 0.18)
+              ..color = boneColor.withValues(alpha: isBoneSelected ? 0.6 : 0.18)
               ..style = PaintingStyle.stroke
               ..strokeWidth = 0.4);
           },
@@ -1229,7 +1232,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
               ..style = PaintingStyle.fill);
 
             c.drawPath(path, Paint()
-              ..color = boneColor.withOpacity(isBoneSelected ? 0.5 : 0.15)
+              ..color = boneColor.withValues(alpha: isBoneSelected ? 0.5 : 0.15)
               ..style = PaintingStyle.stroke
               ..strokeWidth = 0.3);
           },
@@ -1432,14 +1435,14 @@ class ThreeDAnatomyPainter extends CustomPainter {
                 (243 * light).round(),
                 (231 * light).round(),
                 (211 * light).round(),
-                0.85,
+                0.45,
               )
               ..style = PaintingStyle.fill);
 
             c.drawPath(path, Paint()
-              ..color = const Color(0xFFD4C3A3).withOpacity(0.35)
+              ..color = const Color(0xFFD4C3A3).withValues(alpha: 0.18)
               ..style = PaintingStyle.stroke
-              ..strokeWidth = 0.5);
+              ..strokeWidth = 0.3);
           },
         ));
       }
@@ -1463,12 +1466,12 @@ class ThreeDAnatomyPainter extends CustomPainter {
             }
 
             c.drawPath(path, Paint()
-              ..color = ribColor.withOpacity(isRibsSelected ? 0.55 : 0.22)
+              ..color = ribColor.withValues(alpha: isRibsSelected ? 0.55 : 0.22)
               ..style = PaintingStyle.stroke
               ..strokeWidth = isRibsSelected ? 3.5 : 1.8);
 
             c.drawPath(path, Paint()
-              ..color = ribColor.withOpacity(isRibsSelected ? 1.0 : 0.65)
+              ..color = ribColor.withValues(alpha: isRibsSelected ? 1.0 : 0.65)
               ..style = PaintingStyle.stroke
               ..strokeWidth = isRibsSelected ? 1.8 : 1.0);
           },
@@ -1494,12 +1497,12 @@ class ThreeDAnatomyPainter extends CustomPainter {
             }
 
             c.drawPath(path, Paint()
-              ..color = pelvisColor.withOpacity(isPelvisSelected ? 0.55 : 0.22)
+              ..color = pelvisColor.withValues(alpha: isPelvisSelected ? 0.55 : 0.22)
               ..style = PaintingStyle.stroke
               ..strokeWidth = isPelvisSelected ? 4.0 : 2.0);
 
             c.drawPath(path, Paint()
-              ..color = pelvisColor.withOpacity(isPelvisSelected ? 1.0 : 0.7)
+              ..color = pelvisColor.withValues(alpha: isPelvisSelected ? 1.0 : 0.7)
               ..style = PaintingStyle.stroke
               ..strokeWidth = isPelvisSelected ? 2.0 : 1.0);
           },
@@ -1528,11 +1531,11 @@ class ThreeDAnatomyPainter extends CustomPainter {
             final p2 = rEnd.project(size.width, size.height, zoom, centerX, centerY);
 
             c.drawLine(p1, p2, Paint()
-              ..color = spineColor.withOpacity(isSpineSelected ? 0.45 : 0.05)
+              ..color = spineColor.withValues(alpha: isSpineSelected ? 0.45 : 0.05)
               ..strokeWidth = isSpineSelected ? 8.0 : 3.0
               ..strokeCap = StrokeCap.round);
             c.drawLine(p1, p2, Paint()
-              ..color = spineColor.withOpacity(isSpineSelected ? 1.0 : 0.25)
+              ..color = spineColor.withValues(alpha: isSpineSelected ? 1.0 : 0.25)
               ..strokeWidth = isSpineSelected ? 3.0 : 1.2
               ..strokeCap = StrokeCap.round);
 
@@ -1551,7 +1554,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
                 final norm = Offset(axis.dx / len, axis.dy / len);
                 final barHalf = norm * (isSpineSelected ? 12.0 : 5.0);
                 c.drawLine(midP - barHalf, midP + barHalf, Paint()
-                  ..color = spineColor.withOpacity(isSpineSelected ? 1.0 : 0.25)
+                  ..color = spineColor.withValues(alpha: isSpineSelected ? 1.0 : 0.25)
                   ..strokeWidth = isSpineSelected ? 2.0 : 0.8);
               }
             }
@@ -1589,11 +1592,11 @@ class ThreeDAnatomyPainter extends CustomPainter {
 
             if (bone.offsetScale == 0.0) {
               c.drawLine(p1, p2, Paint()
-                ..color = color.withOpacity(isSel ? 0.45 : 0.03)
+                ..color = color.withValues(alpha: isSel ? 0.45 : 0.03)
                 ..strokeWidth = bone.thickness * (isSel ? 3.5 : 1.8)
                 ..strokeCap = StrokeCap.round);
               c.drawLine(p1, p2, Paint()
-                ..color = color.withOpacity(isSel ? 1.0 : 0.2)
+                ..color = color.withValues(alpha: isSel ? 1.0 : 0.2)
                 ..strokeWidth = bone.thickness * (isSel ? 1.5 : 0.8)
                 ..strokeCap = StrokeCap.round);
             } else {
@@ -1604,10 +1607,10 @@ class ThreeDAnatomyPainter extends CustomPainter {
                 final offsetVec = norm * (bone.offsetScale * math.min(size.width, size.height) * zoom);
 
                 c.drawLine(p1 - offsetVec, p2 - offsetVec, Paint()
-                  ..color = color.withOpacity(isSel ? 1.0 : 0.2)
+                  ..color = color.withValues(alpha: isSel ? 1.0 : 0.2)
                   ..strokeWidth = bone.thickness * (isSel ? 1.4 : 0.7));
                 c.drawLine(p1 + offsetVec, p2 + offsetVec, Paint()
-                  ..color = color.withOpacity(isSel ? 1.0 : 0.2)
+                  ..color = color.withValues(alpha: isSel ? 1.0 : 0.2)
                   ..strokeWidth = bone.thickness * (isSel ? 1.4 : 0.7));
               }
             }
@@ -1644,16 +1647,16 @@ class ThreeDAnatomyPainter extends CustomPainter {
 
               // Layer 1: Muscle Belly Base Bulk (Deep Crimson Organic Volume Mass)
               c.drawPath(path, Paint()
-                ..color = (isSel ? const Color(0xFFFF1744) : const Color(0xFF991B1B)).withOpacity(baseAlpha * 0.85)
+                ..color = (isSel ? const Color(0xFFFF1744) : const Color(0xFFB91C1C)).withValues(alpha: baseAlpha * 0.45)
                 ..style = PaintingStyle.stroke
-                ..strokeWidth = isSel ? 6.5 : 4.2
+                ..strokeWidth = isSel ? 2.5 : 1.2
                 ..strokeCap = StrokeCap.round);
 
               // Layer 2: Muscular Fiber Striation (Rich Fleshy Red Highlight)
               c.drawPath(path, Paint()
-                ..color = (isSel ? const Color(0xFFFF8A9E) : const Color(0xFFEF4444)).withOpacity(baseAlpha)
+                ..color = (isSel ? const Color(0xFFFF8A9E) : const Color(0xFFEF4444)).withValues(alpha: baseAlpha * 0.6)
                 ..style = PaintingStyle.stroke
-                ..strokeWidth = isSel ? 2.8 : 1.8
+                ..strokeWidth = isSel ? 1.0 : 0.5
                 ..strokeCap = StrokeCap.round);
             },
           ));
@@ -1685,14 +1688,14 @@ class ThreeDAnatomyPainter extends CustomPainter {
               }
 
               c.drawPath(path, Paint()
-                ..color = color.withOpacity(isSel ? 0.35 : 0.1)
+                ..color = color.withValues(alpha: isSel ? 0.25 : 0.08)
                 ..style = PaintingStyle.stroke
-                ..strokeWidth = isSel ? 3.5 : 2.0);
+                ..strokeWidth = isSel ? 1.8 : 1.0);
 
               c.drawPath(path, Paint()
-                ..color = color.withOpacity(isSel ? 1.0 : 0.6)
+                ..color = color.withValues(alpha: isSel ? 0.95 : 0.45)
                 ..style = PaintingStyle.stroke
-                ..strokeWidth = isSel ? 1.2 : 0.7);
+                ..strokeWidth = isSel ? 0.8 : 0.4);
             },
           ));
         }
@@ -1719,17 +1722,19 @@ class ThreeDAnatomyPainter extends CustomPainter {
               final p2 = rEnd.project(size.width, size.height, zoom, centerX, centerY);
 
               c.drawLine(p1, p2, Paint()
-                ..color = color.withOpacity(isSel ? 0.45 : 0.22)
-                ..strokeWidth = isSel ? 6.0 : 4.0
+                ..color = color.withValues(alpha: isSel ? 0.35 : 0.15)
+                ..strokeWidth = isSel ? 3.0 : 1.5
                 ..strokeCap = StrokeCap.square);
               c.drawLine(p1, p2, Paint()
-                ..color = color.withOpacity(isSel ? 1.0 : 0.75)
-                ..strokeWidth = isSel ? 2.5 : 1.5
+                ..color = color.withValues(alpha: isSel ? 0.85 : 0.45)
+                ..strokeWidth = isSel ? 1.2 : 0.6
                 ..strokeCap = StrokeCap.square);
             },
           ));
         }
       }
+    }
+
     }
 
     // ==========================================
@@ -1759,7 +1764,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
             pos,
             radiusGlow,
             Paint()
-              ..color = color.withOpacity(isSel ? 0.35 : 0.14)
+              ..color = color.withValues(alpha: isSel ? 0.35 : 0.14)
               ..style = PaintingStyle.fill
               ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
           );
@@ -1793,7 +1798,7 @@ class ThreeDAnatomyPainter extends CustomPainter {
             );
 
             final linePaint = Paint()
-              ..color = color.withOpacity(0.85)
+              ..color = color.withValues(alpha: 0.85)
               ..style = PaintingStyle.stroke
               ..strokeWidth = 1.3;
 

@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryPurple.withOpacity(0.04),
+            color: AppColors.primaryPurple.withValues(alpha: 0.04),
             blurRadius: 12,
             spreadRadius: 2,
           )
@@ -110,9 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: AppColors.primaryPink.withOpacity(0.1),
+              color: AppColors.primaryPink.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primaryPink.withOpacity(0.2), width: 2),
+              border: Border.all(color: AppColors.primaryPink.withValues(alpha: 0.2), width: 2),
             ),
             child: const Center(
               child: Icon(Icons.school, size: 36, color: AppColors.primaryPink),
@@ -140,9 +140,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryPink.withOpacity(0.1),
+                    color: AppColors.primaryPink.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.primaryPink.withOpacity(0.2)),
+                    border: Border.all(color: AppColors.primaryPink.withValues(alpha: 0.2)),
                   ),
                   child: const Text(
                     'Doctor of Physical Therapy (DPT)',
@@ -386,7 +386,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isDark: isDark,
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const BookmarksScreen()),
+              MaterialPageRoute(
+                builder: (context) => const BookmarksScreen(initialTabIndex: 1),
+              ),
             );
           },
         ),
@@ -409,7 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 20),

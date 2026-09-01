@@ -112,7 +112,7 @@ class DbHelper {
         'patient_position': patientPos.isNotEmpty ? patientPos : 'Refer to procedure',
         'therapist_position': therapistPos.isNotEmpty ? therapistPos : 'Refer to procedure',
         'interpretation': test['positive_sign'] ?? '',
-        'clinical_notes': 'Clinical significance: ' + (test['purpose'] ?? ''),
+        'clinical_notes': 'Clinical significance: ${test['purpose'] ?? ''}',
         'sensitivity': test['sensitivity'] ?? 'N/A',
         'specificity': test['specificity'] ?? 'N/A',
         'important_notes': test['important_notes'] ?? '',

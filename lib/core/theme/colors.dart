@@ -12,10 +12,10 @@ class AppColors {
   static const Color skyBlue = Color(0xFFE0F2FE);         // Ambient info highlight tint
 
   // Glassmorphic Specific Translucent Colors
-  static Color get glassBgLight => Colors.white.withOpacity(0.4);
-  static Color get glassBgDark => const Color(0xFF1F1A2D).withOpacity(0.55);
-  static Color get glassBorderLight => Colors.white.withOpacity(0.25);
-  static Color get glassBorderDark => Colors.white.withOpacity(0.08);
+  static Color get glassBgLight => Colors.white.withValues(alpha: 0.4);
+  static Color get glassBgDark => const Color(0xFF1F1A2D).withValues(alpha: 0.55);
+  static Color get glassBorderLight => Colors.white.withValues(alpha: 0.25);
+  static Color get glassBorderDark => Colors.white.withValues(alpha: 0.08);
 
   // Functional Colors
   static const Color success = Color(0xFF10B981);       // Clean Green

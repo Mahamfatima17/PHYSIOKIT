@@ -65,7 +65,7 @@ class CategoriesScreen extends StatelessWidget {
                             width: 50,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: AppColors.primaryPurple.withOpacity(0.08),
+                              color: AppColors.primaryPurple.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(cat.icon, color: AppColors.primaryPurple),

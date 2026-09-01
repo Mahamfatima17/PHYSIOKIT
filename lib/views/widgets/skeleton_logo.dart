@@ -19,7 +19,7 @@ class SkeletonLogo extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: (color ?? Colors.pink).withOpacity(0.12),
+            color: (color ?? Colors.pink).withValues(alpha: 0.12),
             blurRadius: 15,
             spreadRadius: 1,
           )

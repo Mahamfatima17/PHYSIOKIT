@@ -85,7 +85,7 @@ class TestLibraryScreen extends StatelessWidget {
                               boxShadow: isStudied
                                   ? [
                                       BoxShadow(
-                                        color: AppColors.success.withOpacity(0.5),
+                                        color: AppColors.success.withValues(alpha: 0.5),
                                         blurRadius: 4,
                                         spreadRadius: 1,
                                       )
@@ -159,9 +159,9 @@ class TestLibraryScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         text,

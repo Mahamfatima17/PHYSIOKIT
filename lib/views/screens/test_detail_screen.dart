@@ -81,10 +81,10 @@ class _TestDetailScreenState extends State<TestDetailScreen> with SingleTickerPr
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryPink.withOpacity(isDark ? 0.08 : 0.05),
+                color: AppColors.primaryPink.withValues(alpha: isDark ? 0.08 : 0.05),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryPink.withOpacity(isDark ? 0.15 : 0.06),
+                    color: AppColors.primaryPink.withValues(alpha: isDark ? 0.15 : 0.06),
                     blurRadius: 80,
                   )
                 ],
@@ -99,10 +99,10 @@ class _TestDetailScreenState extends State<TestDetailScreen> with SingleTickerPr
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryPurple.withOpacity(isDark ? 0.08 : 0.05),
+                color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.08 : 0.05),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryPurple.withOpacity(isDark ? 0.15 : 0.06),
+                    color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.15 : 0.06),
                     blurRadius: 90,
                   )
                 ],
@@ -279,10 +279,10 @@ class _TestDetailScreenState extends State<TestDetailScreen> with SingleTickerPr
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.glassBgDark : AppColors.softPeach.withOpacity(0.35),
+            color: isDark ? AppColors.glassBgDark : AppColors.softPeach.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? AppColors.glassBorderDark : AppColors.softPeach.withOpacity(0.75),
+              color: isDark ? AppColors.glassBorderDark : AppColors.softPeach.withValues(alpha: 0.75),
               width: 1.5,
             ),
           ),
@@ -480,9 +480,9 @@ class _TestDetailScreenState extends State<TestDetailScreen> with SingleTickerPr
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         text,

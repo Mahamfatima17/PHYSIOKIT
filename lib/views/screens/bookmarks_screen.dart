@@ -5,7 +5,8 @@ import '../../providers/learning_provider.dart';
 import 'test_detail_screen.dart';
 
 class BookmarksScreen extends StatefulWidget {
-  const BookmarksScreen({super.key});
+  final int initialTabIndex;
+  const BookmarksScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<BookmarksScreen> createState() => _BookmarksScreenState();
@@ -17,7 +18,11 @@ class _BookmarksScreenState extends State<BookmarksScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override

@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
       ),
       boxShadow: [
         BoxShadow(
-          color: AppColors.primaryPurple.withOpacity(isDark ? 0.05 : 0.02),
+          color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.05 : 0.02),
           blurRadius: 15,
           spreadRadius: 1,
         )
@@ -47,10 +47,10 @@ class HomeScreen extends StatelessWidget {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryPink.withOpacity(isDark ? 0.12 : 0.08),
+                color: AppColors.primaryPink.withValues(alpha: isDark ? 0.12 : 0.08),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryPink.withOpacity(isDark ? 0.2 : 0.1),
+                    color: AppColors.primaryPink.withValues(alpha: isDark ? 0.2 : 0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   )
@@ -66,10 +66,10 @@ class HomeScreen extends StatelessWidget {
               height: 320,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryPurple.withOpacity(isDark ? 0.12 : 0.08),
+                color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.12 : 0.08),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryPurple.withOpacity(isDark ? 0.2 : 0.1),
+                    color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.2 : 0.1),
                     blurRadius: 110,
                     spreadRadius: 20,
                   )
@@ -170,9 +170,9 @@ class HomeScreen extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: AppColors.primaryLight.withOpacity(0.4),
+            color: AppColors.primaryLight.withValues(alpha: 0.4),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primaryPink.withOpacity(0.2), width: 1.5),
+            border: Border.all(color: AppColors.primaryPink.withValues(alpha: 0.2), width: 1.5),
           ),
           child: const Center(
             child: Icon(Icons.person, color: AppColors.primaryPink, size: 26),
@@ -272,10 +272,10 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildCategoriesGrid(BuildContext context, ThemeData theme, bool isDark) {
     final categories = [
-      _CategoryItem(name: 'Upper Limb', icon: Icons.gesture, color: AppColors.primaryLight.withOpacity(0.55), count: '34 Tests'),
-      _CategoryItem(name: 'Lower Limb', icon: Icons.directions_walk, color: AppColors.softPeach.withOpacity(0.55), count: '34 Tests'),
-      _CategoryItem(name: 'Spine', icon: Icons.accessibility_new, color: const Color(0xFFECFDF5).withOpacity(0.55), count: '9 Tests'),
-      _CategoryItem(name: 'Neurology', icon: Icons.psychology, color: AppColors.skyBlue.withOpacity(0.55), count: '19 Tests'),
+      _CategoryItem(name: 'Upper Limb', icon: Icons.gesture, color: AppColors.primaryLight.withValues(alpha: 0.55), count: '34 Tests'),
+      _CategoryItem(name: 'Lower Limb', icon: Icons.directions_walk, color: AppColors.softPeach.withValues(alpha: 0.55), count: '34 Tests'),
+      _CategoryItem(name: 'Spine', icon: Icons.accessibility_new, color: const Color(0xFFECFDF5).withValues(alpha: 0.55), count: '9 Tests'),
+      _CategoryItem(name: 'Neurology', icon: Icons.psychology, color: AppColors.skyBlue.withValues(alpha: 0.55), count: '19 Tests'),
     ];
 
     return GridView.builder(
@@ -458,7 +458,7 @@ class HomeScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryPink.withOpacity(0.1),
+                        color: AppColors.primaryPink.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

@@ -464,10 +464,10 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
               height: 260,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: BioColors.muscle.withOpacity(isDark ? 0.12 : 0.06),
+                color: BioColors.muscle.withValues(alpha: isDark ? 0.12 : 0.06),
                 boxShadow: [
                   BoxShadow(
-                    color: BioColors.muscle.withOpacity(isDark ? 0.20 : 0.08),
+                    color: BioColors.muscle.withValues(alpha: isDark ? 0.20 : 0.08),
                     blurRadius: 100,
                   )
                 ],
@@ -482,10 +482,10 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
               height: 280,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: BioColors.ligament.withOpacity(isDark ? 0.12 : 0.06),
+                color: BioColors.ligament.withValues(alpha: isDark ? 0.12 : 0.06),
                 boxShadow: [
                   BoxShadow(
-                    color: BioColors.ligament.withOpacity(isDark ? 0.20 : 0.08),
+                    color: BioColors.ligament.withValues(alpha: isDark ? 0.20 : 0.08),
                     blurRadius: 110,
                   )
                 ],
@@ -520,16 +520,98 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                     child: AnimatedBuilder(
                       animation: _pulseController,
                       builder: (context, _) {
-                        return CustomPaint(
-                          size: Size(constraints.maxWidth, constraints.maxHeight),
-                          painter: ThreeDAnatomyPainter(
-                            rotationY: _rotationY,
-                            rotationX: _rotationX,
-                            zoom: _zoom,
-                            visibleLayers: _visibleLayers,
-                            selectedId: _selectedElementId,
-                            pulse: _pulseController.value,
-                          ),
+                        double angleRad = _rotationY % (2 * math.pi);
+                        if (angleRad < 0) {
+                          angleRad += 2 * math.pi;
+                        }
+
+                        String imagePath = '';
+                        bool shouldMirror = false;
+
+                        if (_showBones || _showMuscles) {
+                          bool useBonesOnly = _showBones && !_showMuscles;
+
+                          if (angleRad >= 0.39 && angleRad < 1.18) {
+                            // 22.5 to 67.5 deg
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_diagonal_bones_only.png'
+                                : 'assets/skeleton/skeleton_diagonal_color.png';
+                            shouldMirror = false;
+                          } else if (angleRad >= 1.18 && angleRad < 1.96) {
+                            // 67.5 to 112.5 deg
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_side_bones_only.png'
+                                : 'assets/skeleton/skeleton_side_color.png';
+                            shouldMirror = false;
+                          } else if (angleRad >= 1.96 && angleRad < 4.32) {
+                            // 112.5 to 247.5 deg
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_back_bones_only.png'
+                                : 'assets/skeleton/skeleton_back_color.png';
+                            shouldMirror = false;
+                          } else if (angleRad >= 4.32 && angleRad < 5.11) {
+                            // 247.5 to 292.5 deg
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_side_bones_only.png'
+                                : 'assets/skeleton/skeleton_side_color.png';
+                            shouldMirror = true;
+                          } else if (angleRad >= 5.11 && angleRad < 5.89) {
+                            // 292.5 to 337.5 deg
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_diagonal_bones_only.png'
+                                : 'assets/skeleton/skeleton_diagonal_color.png';
+                            shouldMirror = true;
+                          } else {
+                            // Front view
+                            imagePath = useBonesOnly
+                                ? 'assets/skeleton/skeleton_base_bones_only.png'
+                                : 'assets/skeleton/skeleton_base_color.png';
+                            shouldMirror = false;
+                          }
+                        }
+
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            if (imagePath.isNotEmpty)
+                              Center(
+                                child: SizedBox(
+                                  width: constraints.maxWidth * 0.9,
+                                  height: constraints.maxHeight * 0.95,
+                                  child: Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.identity()
+                                      ..setEntry(3, 2, 0.0012)
+                                      ..rotateX(_rotationX),
+                                    child: Transform.scale(
+                                      scaleX: shouldMirror ? -1.0 : 1.0,
+                                      child: Opacity(
+                                        opacity: isDark ? 0.85 : 0.92,
+                                        child: Image.asset(
+                                          imagePath,
+                                          fit: BoxFit.contain,
+                                          filterQuality: FilterQuality.high,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Positioned.fill(
+                              child: CustomPaint(
+                                size: Size(constraints.maxWidth, constraints.maxHeight),
+                                painter: ThreeDAnatomyPainter(
+                                  rotationY: _rotationY,
+                                  rotationX: _rotationX,
+                                  zoom: _zoom,
+                                  visibleLayers: _visibleLayers,
+                                  selectedId: _selectedElementId,
+                                  pulse: _pulseController.value,
+                                  drawWireframe: true,
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -557,7 +639,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                   width: 1.5,
                 ),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10),
                 ],
               ),
               child: SingleChildScrollView(
@@ -617,7 +699,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                   width: 1.5,
                 ),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10),
                 ],
               ),
               child: Column(
@@ -719,14 +801,14 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                                   horizontal: 8, vertical: 5),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? hotspot.color.withOpacity(0.2)
+                                    ? hotspot.color.withValues(alpha: 0.2)
                                     : (isDark
                                         ? AppColors.glassBgDark
-                                        : Colors.white.withOpacity(0.6)),
+                                        : Colors.white.withValues(alpha: 0.6)),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: isSelected
-                                      ? hotspot.color.withOpacity(0.5)
+                                      ? hotspot.color.withValues(alpha: 0.5)
                                       : Colors.transparent,
                                   width: 1.0,
                                 ),
@@ -810,12 +892,12 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                   color: isDark ? AppColors.glassBgDark : AppColors.glassBgLight,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: _getLayerColor(selectedElement.layer).withOpacity(0.35),
+                    color: _getLayerColor(selectedElement.layer).withValues(alpha: 0.35),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: _getLayerColor(selectedElement.layer).withOpacity(0.12),
+                      color: _getLayerColor(selectedElement.layer).withValues(alpha: 0.12),
                       blurRadius: 25,
                       spreadRadius: 2,
                     ),
@@ -836,7 +918,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: _getLayerColor(selectedElement.layer)
-                                      .withOpacity(0.15),
+                                      .withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -885,7 +967,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: _getLayerColor(selectedElement.layer)
-                                .withOpacity(0.15),
+                                .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -921,8 +1003,8 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.black.withOpacity(0.18)
-                            : Colors.white.withOpacity(0.4),
+                            ? Colors.black.withValues(alpha: 0.18)
+                            : Colors.white.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isDark
@@ -1049,7 +1131,7 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-            color: value ? Colors.transparent : activeColor.withOpacity(0.4)),
+            color: value ? Colors.transparent : activeColor.withValues(alpha: 0.4)),
       ),
       onSelected: onChanged,
     );

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/storage/storage_helper.dart';
 import '../../core/theme/colors.dart';
 import '../../providers/theme_provider.dart';
+import 'anatomy_3d_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -199,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   title: const Text('Pastel Dark Mode', style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: const Text('Easy on eyes for night study'),
-                  activeColor: AppColors.primaryPink,
+                  activeThumbColor: AppColors.primaryPink,
                   secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryPink),
                 ),
                 const Divider(height: 1),
@@ -307,6 +308,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: const Text('Clears memory cache, viewed history logs, and resets preferences'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.redAccent),
                   onTap: () => _confirmClearCache(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.threed_rotation, color: AppColors.primaryPink),
+                  title: const Text('Anatomy 3D Viewer', style: TextStyle(fontWeight: FontWeight.bold)),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const Anatomy3DScreen()),
+                    );
+                  },
                 ),
               ],
             ),

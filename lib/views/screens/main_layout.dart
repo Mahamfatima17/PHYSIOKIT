@@ -52,7 +52,7 @@ class MainLayoutState extends State<MainLayout> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryPurple.withOpacity(0.08),
+              color: AppColors.primaryPurple.withValues(alpha: 0.08),
               blurRadius: 10,
               spreadRadius: 2,
             ),

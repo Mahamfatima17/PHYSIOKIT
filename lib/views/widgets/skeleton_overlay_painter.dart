@@ -67,12 +67,12 @@ class SkeletonOverlayPainter extends CustomPainter {
       final glowRadius = isSelected
           ? 16.0 + 4.0 * math.sin(pulse * 2 * math.pi)
           : 10.0 + 2.0 * math.sin(pulse * 2 * math.pi);
-      _glowPaint.color = baseColor.withOpacity(isSelected ? 0.35 : 0.15);
+      _glowPaint.color = baseColor.withValues(alpha: isSelected ? 0.35 : 0.15);
       canvas.drawCircle(pos, glowRadius, _glowPaint);
 
       // Core dot
       final coreRadius = isSelected ? 6.5 : 4.5;
-      _corePaint.color = baseColor.withOpacity(isSelected ? 1.0 : 0.75);
+      _corePaint.color = baseColor.withValues(alpha: isSelected ? 1.0 : 0.75);
       canvas.drawCircle(pos, coreRadius, _corePaint);
 
       // Inner white dot for medical precision look
@@ -98,7 +98,7 @@ class SkeletonOverlayPainter extends CustomPainter {
         );
 
         _linePaint
-          ..color = baseColor.withOpacity(0.8)
+          ..color = baseColor.withValues(alpha: 0.8)
           ..strokeWidth = 1.2;
 
         // Draw thin medical leader line

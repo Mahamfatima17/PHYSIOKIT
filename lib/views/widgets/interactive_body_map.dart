@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
@@ -11,24 +12,33 @@ class InteractiveBodyMap extends StatefulWidget {
   State<InteractiveBodyMap> createState() => _InteractiveBodyMapState();
 }
 
-class _InteractiveBodyMapState extends State<InteractiveBodyMap>
-    with SingleTickerProviderStateMixin {
+class _InteractiveBodyMapState extends State<InteractiveBodyMap> {
   double _rotationY = 0.0;
   double _rotationX = 0.0;
-  late AnimationController _pulseController;
+
+  // Pulse value updated at ~20fps instead of 60fps to reduce CustomPaint repaints
+  double _pulse = 0.0;
+  Timer? _pulseTimer;
+
+  // Rate-limit gesture setState to ~30fps (33ms minimum between updates)
+  DateTime _lastGestureUpdate = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
+    // Advance pulse at 20fps (every 50ms) to save ~66% of CustomPaint rebuilds
+    _pulseTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (mounted) {
+        setState(() {
+          _pulse = (_pulse + 0.033) % 1.0; // ~3s cycle at 20fps
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
+    _pulseTimer?.cancel();
     super.dispose();
   }
 
@@ -56,7 +66,7 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryPurple.withOpacity(isDark ? 0.08 : 0.04),
+            color: AppColors.primaryPurple.withValues(alpha: isDark ? 0.08 : 0.04),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -72,6 +82,10 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanUpdate: (details) {
+                final now = DateTime.now();
+                // Rate-limit to ~30fps (33ms) to avoid flooding the main thread
+                if (now.difference(_lastGestureUpdate).inMilliseconds < 33) return;
+                _lastGestureUpdate = now;
                 setState(() {
                   _rotationY += details.delta.dx * 0.007;
                   _rotationX -= details.delta.dy * 0.007;
@@ -130,7 +144,7 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
                           center: Alignment.center,
                           radius: 0.9,
                           colors: [
-                            AppColors.primaryPurple.withOpacity(isDark ? 0.06 : 0.03),
+                            AppColors.primaryPurple.withValues(alpha: isDark ? 0.06 : 0.03),
                             Colors.transparent,
                           ],
                         ),
@@ -146,40 +160,23 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // High-Resolution 3D Anatomical Skeleton Texture with 3D Perspective Rotation
-                          Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.identity()
-                              ..setEntry(3, 2, 0.0012)
-                              ..rotateY(_rotationY)
-                              ..rotateX(_rotationX),
-                            child: Image.asset(
-                              ((_rotationY.abs() % (math.pi * 2)) > math.pi / 2 && (_rotationY.abs() % (math.pi * 2)) < 3 * math.pi / 2)
-                                  ? 'assets/skeleton/skeleton_back_color.png'
-                                  : 'assets/skeleton/skeleton_base_color.png',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
-                            ),
-                          ),
+                          // High-Resolution skeleton image — outside animation loop to avoid re-decode on every frame
+                          _SkeletonImage(rotationY: _rotationY, rotationX: _rotationX),
 
-                          // 3D Projected Bioluminescent Hotspots & Layer Highlights
+                          // 3D Projected Bioluminescent Hotspots — isolated in its own RepaintBoundary
                           Positioned.fill(
                             child: RepaintBoundary(
-                              child: AnimatedBuilder(
-                                animation: _pulseController,
-                                builder: (context, _) {
-                                  return CustomPaint(
-                                    size: Size(containerW * 0.9, containerH * 0.95),
-                                    painter: ThreeDAnatomyPainter(
-                                      rotationY: _rotationY,
-                                      rotationX: _rotationX,
-                                      zoom: 0.9,
-                                      visibleLayers: const {'bone', 'muscle'},
-                                      selectedId: null,
-                                      pulse: _pulseController.value,
-                                    ),
-                                  );
-                                },
+                              child: CustomPaint(
+                                size: Size(containerW * 0.9, containerH * 0.95),
+                                painter: ThreeDAnatomyPainter(
+                                  rotationY: _rotationY,
+                                  rotationX: _rotationX,
+                                  zoom: 0.9,
+                                  visibleLayers: const {'bone', 'muscle'},
+                                  selectedId: null,
+                                  pulse: _pulse,
+                                  drawWireframe: false,
+                                ),
                               ),
                             ),
                           ),
@@ -270,19 +267,19 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
       child: InkWell(
         onTap: () => _navigateToRegion(regionKey),
         borderRadius: BorderRadius.circular(14),
-        splashColor: AppColors.primaryPink.withOpacity(0.15),
+        splashColor: AppColors.primaryPink.withValues(alpha: 0.15),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.glassBgDark : Colors.white.withOpacity(0.75),
+            color: isDark ? AppColors.glassBgDark : Colors.white.withValues(alpha: 0.75),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: AppColors.primaryPurple.withOpacity(0.18),
+              color: AppColors.primaryPurple.withValues(alpha: 0.18),
               width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryPurple.withOpacity(0.06),
+                color: AppColors.primaryPurple.withValues(alpha: 0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -304,9 +301,57 @@ class _InteractiveBodyMapState extends State<InteractiveBodyMap>
               ),
               const SizedBox(width: 3),
               Icon(Icons.chevron_right, size: 12,
-                  color: AppColors.primaryPink.withOpacity(0.6)),
+                  color: AppColors.primaryPink.withValues(alpha: 0.6)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Extracts the skeleton image into its own widget so it only rebuilds
+/// when [rotationY] / [rotationX] actually change — NOT on every pulse tick.
+class _SkeletonImage extends StatelessWidget {
+  final double rotationY;
+  final double rotationX;
+
+  const _SkeletonImage({required this.rotationY, required this.rotationX});
+
+  @override
+  Widget build(BuildContext context) {
+    double angleRad = rotationY % (2 * math.pi);
+    if (angleRad < 0) angleRad += 2 * math.pi;
+
+    String imagePath = 'assets/skeleton/skeleton_base_color.png';
+    bool shouldMirror = false;
+
+    if (angleRad >= 0.39 && angleRad < 1.18) {
+      imagePath = 'assets/skeleton/skeleton_diagonal_color.png';
+    } else if (angleRad >= 1.18 && angleRad < 1.96) {
+      imagePath = 'assets/skeleton/skeleton_side_color.png';
+    } else if (angleRad >= 1.96 && angleRad < 4.32) {
+      imagePath = 'assets/skeleton/skeleton_back_color.png';
+    } else if (angleRad >= 4.32 && angleRad < 5.11) {
+      imagePath = 'assets/skeleton/skeleton_side_color.png';
+      shouldMirror = true;
+    } else if (angleRad >= 5.11 && angleRad < 5.89) {
+      imagePath = 'assets/skeleton/skeleton_diagonal_color.png';
+      shouldMirror = true;
+    }
+
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.0012)
+        ..rotateX(rotationX),
+      child: Transform.scale(
+        scaleX: shouldMirror ? -1.0 : 1.0,
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.contain,
+          // Medium quality is visually identical on small screens but much cheaper on emulator
+          filterQuality: FilterQuality.medium,
         ),
       ),
     );
