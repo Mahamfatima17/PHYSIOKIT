@@ -516,89 +516,29 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                   },
                   onTapUp: (details) => _handleTap(details, constraints),
                   behavior: HitTestBehavior.opaque,
-                  child: RepaintBoundary(
-                    child: AnimatedBuilder(
-                      animation: _pulseController,
-                      builder: (context, _) {
-                        double angleRad = _rotationY % (2 * math.pi);
-                        if (angleRad < 0) {
-                          angleRad += 2 * math.pi;
-                        }
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // High-Resolution 3D Skeleton Image matching the home screen
+                      Center(
+                        child: SizedBox(
+                          width: constraints.maxWidth * 0.9,
+                          height: constraints.maxHeight * 0.95,
+                          child: _AtlasSkeletonImage(
+                            rotationY: _rotationY,
+                            rotationX: _rotationX,
+                            zoom: _zoom,
+                          ),
+                        ),
+                      ),
 
-                        String imagePath = '';
-                        bool shouldMirror = false;
-
-                        if (_showBones || _showMuscles) {
-                          bool useBonesOnly = _showBones && !_showMuscles;
-
-                          if (angleRad >= 0.39 && angleRad < 1.18) {
-                            // 22.5 to 67.5 deg
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_diagonal_bones_only.png'
-                                : 'assets/skeleton/skeleton_diagonal_color.png';
-                            shouldMirror = false;
-                          } else if (angleRad >= 1.18 && angleRad < 1.96) {
-                            // 67.5 to 112.5 deg
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_side_bones_only.png'
-                                : 'assets/skeleton/skeleton_side_color.png';
-                            shouldMirror = false;
-                          } else if (angleRad >= 1.96 && angleRad < 4.32) {
-                            // 112.5 to 247.5 deg
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_back_bones_only.png'
-                                : 'assets/skeleton/skeleton_back_color.png';
-                            shouldMirror = false;
-                          } else if (angleRad >= 4.32 && angleRad < 5.11) {
-                            // 247.5 to 292.5 deg
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_side_bones_only.png'
-                                : 'assets/skeleton/skeleton_side_color.png';
-                            shouldMirror = true;
-                          } else if (angleRad >= 5.11 && angleRad < 5.89) {
-                            // 292.5 to 337.5 deg
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_diagonal_bones_only.png'
-                                : 'assets/skeleton/skeleton_diagonal_color.png';
-                            shouldMirror = true;
-                          } else {
-                            // Front view
-                            imagePath = useBonesOnly
-                                ? 'assets/skeleton/skeleton_base_bones_only.png'
-                                : 'assets/skeleton/skeleton_base_color.png';
-                            shouldMirror = false;
-                          }
-                        }
-
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            if (imagePath.isNotEmpty)
-                              Center(
-                                child: SizedBox(
-                                  width: constraints.maxWidth * 0.9,
-                                  height: constraints.maxHeight * 0.95,
-                                  child: Transform(
-                                    alignment: Alignment.center,
-                                    transform: Matrix4.identity()
-                                      ..setEntry(3, 2, 0.0012)
-                                      ..rotateX(_rotationX),
-                                    child: Transform.scale(
-                                      scaleX: shouldMirror ? -1.0 : 1.0,
-                                      child: Opacity(
-                                        opacity: isDark ? 0.85 : 0.92,
-                                        child: Image.asset(
-                                          imagePath,
-                                          fit: BoxFit.contain,
-                                          filterQuality: FilterQuality.high,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            Positioned.fill(
-                              child: CustomPaint(
+                      // 3D Projected Bioluminescent Interactive Hotspots
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, _) {
+                              return CustomPaint(
                                 size: Size(constraints.maxWidth, constraints.maxHeight),
                                 painter: ThreeDAnatomyPainter(
                                   rotationY: _rotationY,
@@ -607,14 +547,14 @@ class _AnatomyPlaceholderScreenState extends State<AnatomyPlaceholderScreen>
                                   visibleLayers: _visibleLayers,
                                   selectedId: _selectedElementId,
                                   pulse: _pulseController.value,
-                                  drawWireframe: true,
+                                  drawWireframe: false,
                                 ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -1188,3 +1128,61 @@ class _AnatomyElement {
     required this.region,
   });
 }
+
+/// Realistic 3D Skeleton Image matching the home screen model with zoom & rotation support
+class _AtlasSkeletonImage extends StatelessWidget {
+  final double rotationY;
+  final double rotationX;
+  final double zoom;
+
+  const _AtlasSkeletonImage({
+    required this.rotationY,
+    required this.rotationX,
+    required this.zoom,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double angleRad = rotationY % (2 * math.pi);
+    if (angleRad < 0) angleRad += 2 * math.pi;
+
+    String imagePath = 'assets/skeleton/skeleton_base_color.png';
+    bool shouldMirror = false;
+
+    if (angleRad >= 0.39 && angleRad < 1.18) {
+      // 22.5° to 67.5° - Diagonal view
+      imagePath = 'assets/skeleton/skeleton_diagonal_color.png';
+    } else if (angleRad >= 1.18 && angleRad < 1.96) {
+      // 67.5° to 112.5° - Side view
+      imagePath = 'assets/skeleton/skeleton_side_color.png';
+    } else if (angleRad >= 1.96 && angleRad < 4.32) {
+      // 112.5° to 247.5° - Back view
+      imagePath = 'assets/skeleton/skeleton_back_color.png';
+    } else if (angleRad >= 4.32 && angleRad < 5.11) {
+      // 247.5° to 292.5° - Side view (mirrored)
+      imagePath = 'assets/skeleton/skeleton_side_color.png';
+      shouldMirror = true;
+    } else if (angleRad >= 5.11 && angleRad < 5.89) {
+      // 292.5° to 337.5° - Diagonal view (mirrored)
+      imagePath = 'assets/skeleton/skeleton_diagonal_color.png';
+      shouldMirror = true;
+    }
+
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.0012)
+        ..rotateX(rotationX),
+      child: Transform.scale(
+        scaleX: shouldMirror ? -zoom : zoom,
+        scaleY: zoom,
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+        ),
+      ),
+    );
+  }
+}
+
